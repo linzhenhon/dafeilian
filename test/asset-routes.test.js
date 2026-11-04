@@ -61,7 +61,7 @@ test('asset routes stay loopback-only and serve the manifest', () => {
   assert.equal(manifest.statusCode, 200)
   const value = JSON.parse(manifest.body)
   assert.equal(value.formatVersion, 1)
-  assert.equal(value.characterId, 'public-robot')
+  assert.equal(value.characterId, 'dafeilian-insect')
   assert.ok(Object.keys(value.clips).length >= 15)
 })
 

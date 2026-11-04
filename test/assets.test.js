@@ -134,7 +134,7 @@ test('custom voice notifications are valid short mono PCM WAV files', async () =
 
 test('custom character has expressive transparent poses for each main state', async () => {
   const manifest = JSON.parse(await readFile(join(repositoryRoot, 'assets', 'pet-manifest-custom.json'), 'utf8'))
-  assert.equal(manifest.characterId, 'public-robot')
+  assert.equal(manifest.characterId, 'dafeilian-insect')
   assert.equal(manifest.clips.idle.frames[0], 'custom/idle_pose.png')
   assert.equal(manifest.clips.thinking.frames[0], 'custom/thinking_pose.png')
   assert.equal(manifest.clips.working.frames[0], 'custom/working_pose.png')

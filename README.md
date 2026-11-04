@@ -17,9 +17,9 @@
 
 > **当前兼容基线：上游 0.1.23。** 大肥镰仓库目前尚未发布独立 npm 包或 GitHub Release；下文安装命令使用的 `dsh-dafeiyu@0.1.23` 和下载文件均来自上游。离线安装请从[上游最新版下载页](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)选择 **`dsh-dafeiyu-0.1.23.tgz`**；Windows、Linux 与 macOS 共用这一个包。GitHub 自动生成的 **Source code (zip / tar.gz)** 是源码，不是安装包。
 
-<img src="assets/pet/custom/idle_pose.png" width="300" alt="公开源码使用的原创机器人形象">
+<img src="assets/pet/custom/idle_pose.png" width="300" alt="大肥镰棕色昆虫宠物形象">
 
-*公开源码使用原创机器人占位形象；本机私人角色与配音保存在忽略目录，不随仓库分发。*
+*大肥镰使用仓库所有者提供并授权公开的棕色昆虫宠物形象；角色素材不适用代码的 MIT 许可证，详见[素材与授权](#素材与授权)。私人配音与渲染源文件仍保存在忽略目录，不随仓库分发。*
 
 ## 能做什么
 
@@ -215,7 +215,7 @@ CI 还会隔离安装 DSH 0.2.0-rc.2 并运行 `scripts/test-dsh-settings.mjs`�
 
 ## 素材与授权
 
-公开源码默认使用由 `python scripts/generate_public_assets.py` 生成的原创机器人与非语音提示音，动作清单为 `assets/pet-manifest-custom.json`。用户提供的原图、渲染图和授权参考配音仅保存在本机忽略目录 `local-private-assets/`，不随 Git 或 npm 包分发。清单中的 `motionProfiles` 仍控制待机、思考、工作、等待、拖拽和点击动作。上游 [dsh-pet](https://github.com/PC2005-cloud/dsh-pet) 动画帧保留在源码目录作参考，不进入 npm 包；其角色形象为 CC BY-NC-SA 4.0，动画素材禁止商用。
+公开源码默认使用仓库所有者提供并授权公开的棕色昆虫宠物形象，动作清单为 `assets/pet-manifest-custom.json`；备用机器人保存在 `assets/pet/fallback-robot/`，非语音提示音由 `python scripts/generate_public_assets.py` 生成。私人渲染源文件和参考配音仍保存在本机忽略目录 `local-private-assets/`，不随 Git 或 npm 包分发。清单中的 `motionProfiles` 继续控制待机、思考、工作、等待、拖拽和点击动作。上游 [dsh-pet](https://github.com/PC2005-cloud/dsh-pet) 动画帧保留在源码目录作参考，不进入 npm 包；其角色形象为 CC BY-NC-SA 4.0，动画素材禁止商用。
 
 软件代码与角色素材适用不同授权，请阅读中英双语的 [ASSET_LICENSE.md](ASSET_LICENSE.md)、[上游代码许可证](assets/dsh-pet-LICENSE.txt)和 [LICENSE](LICENSE)。旧版素材及社区拖拽图片仅留在本机 `legacy/`，不进入公开提交或 npm 包。
 

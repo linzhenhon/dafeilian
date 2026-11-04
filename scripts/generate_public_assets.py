@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Create the public, original robot sprites and non-voice notification sounds.
+"""Create fallback robot sprites and public non-voice notification sounds.
 
-Private character renders and voice recordings belong in local-private-assets/.
+The branded mascot is prepared separately by prepare_public_mascot.py.
 This script deliberately uses only Pillow drawing primitives and synthesized tones.
 """
 
@@ -16,7 +16,7 @@ from PIL import Image, ImageDraw
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SPRITES = ROOT / "assets/pet/custom"
+SPRITES = ROOT / "assets/pet/fallback-robot"
 SOUNDS = ROOT / "assets/sounds"
 SIZE = (412, 344)
 POSES = (
@@ -42,9 +42,9 @@ def sprite(pose: str) -> Image.Image:
     flying = pose.startswith("flying")
     tilt = 12 if pose in {"flying", "flying_side", "working_pose"} else 0
     eyes = pose not in {"back", "flying_back"}
-    # The mascot is an original blue screen robot: rounded body, headphones,
+    # The fallback is an original blue screen robot: rounded body, headphones,
     # cyan faceplate, and a small four-point star. It is unrelated to the
-    # user's private insect character and to the upstream whale character.
+    # branded insect mascot and to the upstream whale character.
     draw.ellipse((136, 263, 276, 285), fill=(25, 73, 113, 49))
     draw.rounded_rectangle((122, 107, 290, 262), radius=62, fill=(23, 77, 132, 255), outline=(18, 53, 96, 255), width=5)
     for y in range(115, 256):
