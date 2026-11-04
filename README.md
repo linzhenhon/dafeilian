@@ -176,7 +176,7 @@ dsh plugin --profile desktop add .
 本仓库当前是 Git 源码安装，**不包含 `runtime/bin/` 中的预编译 Helper**。Windows 和 Linux 用户需要安装 Python 3，并为 DSH 实际调用的 Python 安装依赖：
 
 ```powershell
-python -m pip install "PySide6>=6.7,<7"
+python -m pip install "PySide6>=6.7,<6.12"
 ```
 
 若 DSH 没有找到正确的 Python，可在启动 Host 前设置 `DSH_DAFEIYU_PYTHON=<python 可执行文件路径>`。也可以从源码自行构建平台 Helper。macOS Helper 需要 Xcode Command Line Tools；当前仍需真实机器验证视觉效果与多屏操作。
@@ -210,7 +210,7 @@ dsh plugin --profile desktop update dsh-dafeiyu
 - 桌面端安装只显示 `[exit 1]`：该信息不足以确定原因，请附上插件安装详细日志（如 `hub.log`）、DSH 版本、系统和安装方式。
 - Git 安装失败：确认 Git 已加入 `PATH`、能够访问 GitHub，并使用完整地址 `https://github.com/linzhenhon/dafeilian.git`。
 - 余额查询失败：检查 DSH 中的凭据及所用网关是否支持余额接口。
-- 角色不出现：检查 profile、插件是否启用、Host 是否有可用图形桌面，以及 Python 是否已安装 `PySide6>=6.7,<7`。Helper 的启动原因会写入日志：
+- 角色不出现：检查 profile、插件是否启用、Host 是否有可用图形桌面，以及 Python 是否已安装 `PySide6>=6.7,<6.12`。Helper 的启动原因会写入日志：
   - Windows：`%LOCALAPPDATA%\dsh-dafeiyu\logs\helper.log`
   - macOS：`~/Library/Logs/dsh-dafeiyu/helper.log`
   - Linux：`${XDG_STATE_HOME:-~/.local/state}/dsh-dafeiyu/helper.log`

@@ -148,7 +148,7 @@ Settings apply live. On Windows and Linux, the native context menu offers **Ente
 | --- | --- |
 | Windows 10 / 11 x64 | Bundled Helper; WSL2 uses Windows interoperability |
 | Linux x64 | Bundled Qt Helper; graphical desktop and glibc 2.35+ required; Ubuntu 24.04 has recorded acceptance results |
-| Linux arm64 | No architecture-matched Helper is bundled; falls back to the Python Helper and needs `python3` plus `PySide6>=6.7,<7`, or writes an explicit log entry |
+| Linux arm64 | No architecture-matched Helper is bundled; falls back to the Python Helper and needs `python3` plus `PySide6>=6.7,<6.12`, or writes an explicit log entry |
 | macOS 12+ | Native Swift / AppKit Universal Helper; experimental |
 
 Release packages include the Helper. A normal installation needs neither Python nor a separately launched companion. Source development requires building the Helper. macOS font and partial-offscreen fixes pass CI; their appearance and multi-monitor behavior still need real-machine validation.

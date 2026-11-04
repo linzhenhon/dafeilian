@@ -105,7 +105,7 @@ Helper 的启动过程会写入诊断日志，超时、`exited before ready`、`
 - macOS：`~/Library/Logs/dsh-dafeiyu/helper.log`
 - Linux：`${XDG_STATE_HOME:-~/.local/state}/dsh-dafeiyu/helper.log`
 
-本 Git 仓库不包含 `runtime/bin/` 中的预编译 Helper，Windows、Linux 和未自行构建 Swift Helper 的 macOS 会回退到 Python。需要给运行 Host 的 Python 安装 `PySide6>=6.7,<7`（`python -m pip install "PySide6>=6.7,<7"`）；必要时设置 `DSH_DAFEIYU_PYTHON=<python 可执行文件路径>`。日志和 console 会写出架构与缺失依赖，而不是静默重试后放弃。
+本 Git 仓库不包含 `runtime/bin/` 中的预编译 Helper，Windows、Linux 和未自行构建 Swift Helper 的 macOS 会回退到 Python。需要给运行 Host 的 Python 安装 `PySide6>=6.7,<6.12`（`python -m pip install "PySide6>=6.7,<6.12"`）；必要时设置 `DSH_DAFEIYU_PYTHON=<python 可执行文件路径>`。日志和 console 会写出架构与缺失依赖，而不是静默重试后放弃。
 
 需要改变日志位置时设置 `DSH_DAFEIYU_LOG_FILE=<路径>`，设为 `off` 可关闭。日志只包含本地路径与 Helper 的启动/错误信息，不包含凭据。
 

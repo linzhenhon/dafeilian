@@ -46,7 +46,7 @@ export async function submitDesktopTask({ requestId, text, files = [] }, { sessi
   if (typeof text !== 'string' || text.length > MAX_TASK_LENGTH || (!text.trim() && (!Array.isArray(files) || files.length === 0))) {
     return { accepted: false, error: `请输入不超过 ${MAX_TASK_LENGTH} 字的任务` }
   }
-  if (!Array.isArray(files) || files.length > MAX_TASK_FILES || files.some(path => typeof path !== 'string' || !isAbsolute(path) || path.length > 4096)) {
+  if (!Array.isArray(files) || files.length > MAX_TASK_FILES) {
     return { accepted: false, error: `请最多选择 ${MAX_TASK_FILES} 个有效的本地文件` }
   }
   if (!sessionId) return { accepted: false, error: '请先打开要接收任务的 DSH 对话' }
@@ -55,6 +55,9 @@ export async function submitDesktopTask({ requestId, text, files = [] }, { sessi
   }
   if (files.length && typeof fileUploads?.uploadStream !== 'function') {
     return { accepted: false, error: '当前 DSH 版本没有提供文件上传接口' }
+  }
+  if (files.some(path => typeof path !== 'string' || !isAbsolute(path) || path.length > 4096)) {
+    return { accepted: false, error: `请最多选择 ${MAX_TASK_FILES} 个有效的本地文件` }
   }
   try {
     const content = []
