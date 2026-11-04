@@ -228,7 +228,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: npm-package
-          path: dsh-dafeiyu-*.tgz
+          path: dsh-dafeilian-*.tgz
           if-no-files-found: error
           retention-days: 14
 
@@ -258,7 +258,7 @@ jobs:
       - name: Extract and smoke-test macOS Helper
         run: |
           mkdir -p .build/package-check
-          tar -xzf dist/dsh-dafeiyu-*.tgz -C .build/package-check
+          tar -xzf dist/dsh-dafeilian-*.tgz -C .build/package-check
           app=.build/package-check/package/runtime/bin/darwin/dsh-dafeiyu-helper.app
           binary="$app/Contents/MacOS/dsh-dafeiyu-helper"
           test -x "$binary"
@@ -349,10 +349,6 @@ jobs:
           echo "dist_tag=$dist_tag" >> "$GITHUB_OUTPUT"
           echo "publish_needed=$publish_needed" >> "$GITHUB_OUTPUT"
 
-      - name: Publish package to npm
-        if: steps.release.outputs.publish_needed == 'true'
-        run: npm publish "./${{ steps.release.outputs.archive }}" --tag "${{ steps.release.outputs.dist_tag }}" --access public
-
       - name: Create or update GitHub Release
         shell: bash
         env:
@@ -370,12 +366,20 @@ jobs:
             if [[ "$VERSION" == *-* ]]; then
               release_flags+=(--prerelease)
             fi
-            notes_file="$RUNNER_TEMP/dsh-dafeiyu-release-notes.md"
+            notes_file="$RUNNER_TEMP/dsh-dafeilian-release-notes.md"
             node scripts/release-notes.mjs > "$notes_file"
             gh release create "$release_tag" "$ARCHIVE" \
               --target "$GITHUB_SHA" \
-              --title "DSH BigFish ${release_tag}" \
+              --title "DSH Dafeilian ${release_tag}" \
               --notes-file "$notes_file" \
               --generate-notes \
               "${release_flags[@]}"
           fi
+
+      - name: Publish package to npm
+        if: steps.release.outputs.publish_needed == 'true' && vars.NPM_TRUSTED_PUBLISHING_ENABLED == 'true'
+        run: npm publish "./${{ steps.release.outputs.archive }}" --tag "${{ steps.release.outputs.dist_tag }}" --access public
+
+      - name: Explain skipped npm publication
+        if: steps.release.outputs.publish_needed == 'true' && vars.NPM_TRUSTED_PUBLISHING_ENABLED != 'true'
+        run: echo "GitHub Release created; npm publication is disabled until the new package's trusted publisher is configured and NPM_TRUSTED_PUBLISHING_ENABLED is set to true."

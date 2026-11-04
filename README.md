@@ -15,7 +15,7 @@
 
 大肥镰由 DSH 插件启动，随 DSH 一起退出。透明、无边框、始终置顶的原生窗口，让你在编辑器、浏览器或其他应用中也能看到 Agent 的工作状态。
 
-> **插件安装地址：[`https://github.com/linzhenhon/dafeilian.git`](https://github.com/linzhenhon/dafeilian.git)**。当前从仓库 `main` 分支安装，不使用上游 npm 包或上游 Release；升级时请继续使用同一仓库地址。
+> **推荐安装：[v0.0.1 预编译安装包](https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz)。** 可直接把该 `.tgz` URL 粘贴到插件管理器。源码仓库地址仍为 [`https://github.com/linzhenhon/dafeilian.git`](https://github.com/linzhenhon/dafeilian.git)，但 Git 源码安装不包含预编译 Helper，需要 Python 和 PySide6。
 
 <img src="assets/pet/custom/idle_pose.png" width="300" alt="大肥镰棕色昆虫宠物形象">
 
@@ -48,34 +48,34 @@
 
 使用命令行安装、升级或移除前，先**完全退出对应 DSH Host**；操作后重新启动。通过桌面应用内的插件管理操作时，按应用提示重启。
 
-安装源统一使用：
+普通用户安装带 Windows、Linux 和 macOS 预编译 Helper 的稳定版：
 
 ```text
-https://github.com/linzhenhon/dafeilian.git
+https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz
 ```
 
-这是 Git 源码安装，需要能够访问 GitHub，并且系统能够运行 Git。DSH 会把地址交给 pnpm 安装，安装后的插件名是 `dsh-dafeilian`。本仓库没有提交预编译 Helper，安装前请同时阅读[平台与运行环境](#平台与运行环境)。
+也可以直接安装 Release 资产 `dsh-dafeilian-0.0.1.tgz`。该安装包由 GitHub Actions 在各原生平台构建并验证，正常使用不需要安装 Python、PySide6 或 Git。GitHub 自动生成的 Source code 压缩包不是插件安装包。
 
 ### 浏览器 WebUI
 
 已全局安装 DSH：
 
 ```powershell
-dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian.git"
+dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz"
 dsh web
 ```
 
 使用 `npx`，无需全局安装 DSH：
 
 ```powershell
-npx -y @deepseek-ai/dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian.git"
+npx -y @deepseek-ai/dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz"
 npx -y @deepseek-ai/dsh web
 ```
 
 从 DeepSeek Harness 源码运行的用户，在 Harness 仓库中执行：
 
 ```powershell
-pnpm dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian.git"
+pnpm dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz"
 pnpm dsh web
 ```
 
@@ -84,11 +84,11 @@ pnpm dsh web
 推荐直接在应用内安装：
 
 1. 打开官方 DeepSeek Harness 桌面应用，点击左侧 **插件**。
-2. 点击 **添加插件**，输入 `https://github.com/linzhenhon/dafeilian.git`，点击 **安装**。
+2. 点击 **添加插件**，输入 `https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz`，点击 **安装**。
 3. 安装成功后点击 **立即启用**，桌面角色会出现在桌面上。
 4. 在插件列表打开 **dsh-dafeilian**，调整角色、气泡和余额设置，修改实时生效。
 
-这套流程使用桌面应用自带的安装环境，用户无需单独安装 Node.js；Git 源码安装仍要求系统能够访问 GitHub 和运行 Git。若应用提示刷新或重启，按提示操作；失败时展开 **查看安装详情** 并保留日志。请使用完整 GitHub 地址，不要只填包名。
+这套流程使用桌面应用自带的安装环境，用户无需单独安装 Node.js、Python、PySide6 或 Git。若应用提示刷新或重启，按提示操作；失败时展开 **查看安装详情** 并保留日志。
 
 使用命令安装时：
 
@@ -97,7 +97,7 @@ pnpm dsh web
 3. 执行：
 
    ```powershell
-   dsh plugin --profile desktop add "https://github.com/linzhenhon/dafeilian.git"
+   dsh plugin --profile desktop add "https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz"
    ```
 
 4. 重新打开桌面应用，在左侧插件 → dsh-dafeilian 调整角色。
@@ -106,7 +106,7 @@ pnpm dsh web
 
 ### 从本地克隆安装
 
-网络环境不适合让 DSH 直接拉取仓库时，可以先克隆源码，再从仓库根目录安装：
+以下方式只适合开发源码；它不会取得 Release 中的预编译 Helper，需要自行准备 Python、PySide6 或先构建 Helper：
 
 ```powershell
 git clone https://github.com/linzhenhon/dafeilian.git
@@ -119,7 +119,7 @@ npx -y @deepseek-ai/dsh plugin --profile web add .
 dsh plugin --profile desktop add .
 ```
 
-当前仓库没有独立 `.tgz` Release 安装包。GitHub 自动生成的 **Source code (zip / tar.gz)** 只是源码归档，不等同于经过项目工作流构建的插件安装包。
+普通用户离线安装请从 [v0.0.1 Release](https://github.com/linzhenhon/dafeilian/releases/tag/v0.0.1) 下载 `dsh-dafeilian-0.0.1.tgz`，不要下载或解压 GitHub 自动生成的 **Source code (zip / tar.gz)**。
 
 ## 余额显示
 
@@ -167,13 +167,13 @@ dsh plugin --profile desktop add .
 
 ## 平台与运行环境
 
-| 平台 | 从本 Git 仓库安装时的原生角色 |
+| 平台 | `v0.0.1` Release 安装包 |
 | --- | --- |
-| Windows 10 / 11 x64 | 使用 Python Helper；WSL2 可通过 Windows 互操作启动 |
-| Linux x64 / arm64 | 使用 Python Helper，需要图形桌面 |
-| macOS 12+ | 可自行构建 Swift / AppKit Helper；未构建时回退 Python Helper，实验性支持 |
+| Windows 10 / 11 x64 | 内置预编译 Helper；WSL2 可通过 Windows 互操作启动 |
+| Linux x64 | 内置预编译 Helper，需要图形桌面 |
+| macOS 12+ | 内置通用 arm64 / x86_64 Swift / AppKit Helper |
 
-本仓库当前是 Git 源码安装，**不包含 `runtime/bin/` 中的预编译 Helper**。Windows 和 Linux 用户需要安装 Python 3，并为 DSH 实际调用的 Python 安装依赖：
+从 Git 仓库或 Gitee 源码地址直接安装时，**不包含 `runtime/bin/` 中的预编译 Helper**。Windows、Linux arm64 和未自行构建 Helper 的环境会回退 Python，需要安装：
 
 ```powershell
 python -m pip install "PySide6>=6.7,<6.12"
@@ -191,14 +191,14 @@ WebUI 用户完全退出 DSH 后执行：
 npx -y @deepseek-ai/dsh plugin --profile web update dsh-dafeilian
 ```
 
-如果更新后仍停留在旧提交，先移除再按仓库地址重新安装：
+如果更新后仍停留在旧版本，先移除再安装明确版本：
 
 ```powershell
 npx -y @deepseek-ai/dsh plugin --profile web remove dsh-dafeilian
-npx -y @deepseek-ai/dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian.git"
+npx -y @deepseek-ai/dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz"
 ```
 
-官方桌面端暂不支持应用内自动更新时，在插件页面卸载 `dsh-dafeilian`，再输入 `https://github.com/linzhenhon/dafeilian.git` 安装并立即启用；也可以完全退出应用后使用自带的命令：
+官方桌面端暂不支持应用内自动更新时，在插件页面卸载 `dsh-dafeilian`，再输入 `https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz` 安装并立即启用；也可以完全退出应用后使用自带的命令：
 
 ```powershell
 dsh plugin --profile desktop update dsh-dafeilian
@@ -208,9 +208,9 @@ dsh plugin --profile desktop update dsh-dafeilian
 
 - DSH 0.2 设置页变化：从本仓库安装当前 `main`，通过左侧插件 → dsh-dafeilian 打开设置；较旧 Host 保留原设置入口。
 - 桌面端安装只显示 `[exit 1]`：该信息不足以确定原因，请附上插件安装详细日志（如 `hub.log`）、DSH 版本、系统和安装方式。
-- Git 安装失败：确认 Git 已加入 `PATH`、能够访问 GitHub，并使用完整地址 `https://github.com/linzhenhon/dafeilian.git`。
+- Release 安装失败：确认能够访问 npm；也可从 [v0.0.1 Release](https://github.com/linzhenhon/dafeilian/releases/tag/v0.0.1) 下载 `.tgz` 后通过 CLI 安装本地文件。
 - 余额查询失败：检查 DSH 中的凭据及所用网关是否支持余额接口。
-- 角色不出现：检查 profile、插件是否启用、Host 是否有可用图形桌面，以及 Python 是否已安装 `PySide6>=6.7,<6.12`。为兼容旧安装，Helper 的日志目录暂时沿用旧名称：
+- 角色不出现：Release 包不依赖 Python；先检查 profile、插件是否启用、Host 是否有可用图形桌面，并查看 Helper 日志。只有 Git 源码安装才需要确认 Python 已安装 `PySide6>=6.7,<6.12`。为兼容旧安装，Helper 的日志目录暂时沿用旧名称：
   - Windows：`%LOCALAPPDATA%\dsh-dafeiyu\logs\helper.log`
   - macOS：`~/Library/Logs/dsh-dafeiyu/helper.log`
   - Linux：`${XDG_STATE_HOME:-~/.local/state}/dsh-dafeiyu/helper.log`

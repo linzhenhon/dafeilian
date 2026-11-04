@@ -2,7 +2,7 @@
 
 先确认插件安装在 `web` 还是官方桌面端的 `desktop` profile。使用命令操作前完全退出对应 Host，包括托盘或后台仍在运行的进程；操作完成后重新启动。使用应用内插件管理时，按应用提示重启。
 
-大肥镰统一从 `https://github.com/linzhenhon/dafeilian.git` 安装和更新。自 `v0.0.1` 起包名和插件 ID 为 `dsh-dafeilian`；旧接口、环境变量和数据目录继续兼容 `dsh-dafeiyu`。
+大肥镰稳定版统一安装 [v0.0.1 Release](https://github.com/linzhenhon/dafeilian/releases/tag/v0.0.1) 中的 `dsh-dafeilian-0.0.1.tgz`，可直接把安装包 URL 粘贴到插件管理器。源码仓库为 `https://github.com/linzhenhon/dafeilian.git`，但 Git 源码安装不含预编译 Helper。自 `v0.0.1` 起包名和插件 ID 为 `dsh-dafeilian`；旧接口、环境变量和数据目录继续兼容 `dsh-dafeiyu`。
 
 ## WebUI
 
@@ -24,12 +24,12 @@ npx -y @deepseek-ai/dsh plugin --profile web update dsh-dafeilian
 
 ```powershell
 npx -y @deepseek-ai/dsh plugin --profile web remove dsh-dafeilian
-npx -y @deepseek-ai/dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian.git"
+npx -y @deepseek-ai/dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz"
 ```
 
 ## 官方桌面端
 
-官方桌面端暂不支持应用内自动更新时，打开左侧 **插件**，卸载 **dsh-dafeilian**，再通过 **添加插件** 输入 `https://github.com/linzhenhon/dafeilian.git`，安装后点击 **立即启用**。从旧版迁移时，先卸载旧条目 **dsh-dafeiyu**。若应用提示刷新或重启，按提示操作。
+官方桌面端暂不支持应用内自动更新时，打开左侧 **插件**，卸载 **dsh-dafeilian**，再通过 **添加插件** 输入 `https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz`，安装后点击 **立即启用**。从旧版迁移时，先卸载旧条目 **dsh-dafeiyu**。若应用提示刷新或重启，按提示操作。
 
 命令方式必须使用**桌面应用自带的 CLI**。先启动一次应用初始化 profile，完全退出，再执行：
 
@@ -43,7 +43,7 @@ dsh plugin --profile desktop update dsh-dafeilian
 
 ## 从本地克隆重新安装
 
-当前仓库没有独立 `.tgz` Release。可以先克隆仓库，再从仓库根目录安装：
+普通用户应下载 [v0.0.1 Release](https://github.com/linzhenhon/dafeilian/releases/tag/v0.0.1) 中的 `dsh-dafeilian-0.0.1.tgz`，再安装本地文件。以下克隆方式只用于源码开发，需要 Python、PySide6 或自行构建 Helper：
 
 ```powershell
 git clone https://github.com/linzhenhon/dafeilian.git

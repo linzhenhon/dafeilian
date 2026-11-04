@@ -13,17 +13,22 @@ password or long-lived publish token is stored in GitHub, Windows, or WSL.
 The package owner must complete this once on npmjs.com after `.github/workflows/publish.yml` exists
 on GitHub:
 
-1. Open the `dsh-dafeiyu` package on npmjs.com and go to **Settings**.
+1. Open the `dsh-dafeilian` package on npmjs.com and go to **Settings**.
 2. Find **Trusted Publisher** and select **GitHub Actions**.
 3. Enter these exact values:
-   - Organization or user: `QCYTSN`
-   - Repository: `dsh-dafeiyu`
+   - Organization or user: `linzhenhon`
+   - Repository: `dafeilian`
    - Workflow filename: `publish.yml`
    - Environment: leave empty
    - Allowed action: `npm publish`
 4. Save the trusted publisher.
 5. After the first successful automated release, set Publishing access to
    **Require two-factor authentication and disallow tokens**.
+
+Until the new npm package and trusted publisher are ready, the workflow still creates the verified
+GitHub Release archive first. npm publication is enabled separately by setting the repository
+variable `NPM_TRUSTED_PUBLISHING_ENABLED` to `true`; rerun the same workflow after configuring the
+publisher.
 
 The workflow filename is case-sensitive. Enter only `publish.yml`, not the full
 `.github/workflows/publish.yml` path.
@@ -83,7 +88,7 @@ separate authenticated action. Do not store a long-lived npm token for it.
 
 ## Keep the download page unambiguous
 
-- Release notes identify the installable `dsh-dafeiyu-<version>.tgz` and link to the latest stable
+- Release notes identify the installable `dsh-dafeilian-<version>.tgz` and link to the latest stable
   release. GitHub's automatic source ZIP / tar archives are not installable plugin packages.
 - After the new stable release and npm `latest` are verified, mark older release records as
   historical and remove their old `.tgz` attachments. Keep published version tags and release

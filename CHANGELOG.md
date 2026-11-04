@@ -11,6 +11,9 @@
 - Keep the existing HTTP endpoints, `DSH_DAFEIYU_*` environment variables,
   user-data directories, and Helper executable names as compatibility paths so
   existing settings and cached assets continue to work.
+- Publish one verified `dsh-dafeilian-0.0.1.tgz` Release package containing the
+  precompiled Windows x64, Linux x64, and macOS universal Helpers, so normal
+  installations do not require Python or PySide6.
 
 ## 0.1.23 · 2026-10-29
 

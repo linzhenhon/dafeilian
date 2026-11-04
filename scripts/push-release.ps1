@@ -114,7 +114,7 @@ try {
         }
     }
 
-    Write-Host "Actions: https://github.com/QCYTSN/dsh-dafeiyu/actions/workflows/publish.yml"
+    Write-Host "Actions: https://github.com/linzhenhon/dafeilian/actions/workflows/publish.yml"
 }
 finally {
     Pop-Location
