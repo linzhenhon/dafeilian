@@ -1,7 +1,34 @@
 import unittest
 from array import array
 
-from runtime.voice_capture import VoiceSegmenter
+from runtime.voice_capture import Pcm16MonoConverter, VoiceSegmenter
+
+
+class Pcm16MonoConverterTests(unittest.TestCase):
+    def test_native_16khz_mono_is_preserved(self):
+        converter = Pcm16MonoConverter(16000, 1)
+        source = array('h', [1200, -900, 0, 32767]).tobytes()
+        self.assertEqual(converter.feed(source), source)
+
+    def test_48khz_stereo_is_mixed_and_resampled(self):
+        converter = Pcm16MonoConverter(48000, 2)
+        stereo = array('h')
+        for _ in range(4800):
+            stereo.extend((2000, 1000))
+        converted = converter.feed(stereo.tobytes())
+        self.assertEqual(len(converted), 1600 * 2)
+        output = array('h')
+        output.frombytes(converted)
+        self.assertEqual(set(output), {1500})
+
+    def test_partial_device_frames_are_buffered(self):
+        converter = Pcm16MonoConverter(16000, 2)
+        source = array('h', [1000, 3000, -2000, 2000]).tobytes()
+        self.assertEqual(converter.feed(source[:3]), b'')
+        converted = converter.feed(source[3:])
+        output = array('h')
+        output.frombytes(converted)
+        self.assertEqual(output.tolist(), [2000, 0])
 
 
 class VoiceSegmenterTests(unittest.TestCase):

@@ -28,13 +28,13 @@ try:
     from .layout_store import default_layout_path, load_layout, save_layout
     from .asset_paths import bundle_root
     from .pet_geometry import bubble_top, position_window
-    from .voice_capture import VoiceSegmenter
+    from .voice_capture import Pcm16MonoConverter, VoiceSegmenter
 except ImportError:
     from animation_model import AnimationModel, crossfade_duration, flight_clip, flight_heading, motion_pose
     from layout_store import default_layout_path, load_layout, save_layout
     from asset_paths import bundle_root
     from pet_geometry import bubble_top, position_window
-    from voice_capture import VoiceSegmenter
+    from voice_capture import Pcm16MonoConverter, VoiceSegmenter
 
 
 PROTOCOL_VERSION = 1
@@ -526,6 +526,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             self.call_transcript: QTextEdit | None = None
             self.voice_source: Any = None
             self.voice_device: Any = None
+            self.voice_converter: Pcm16MonoConverter | None = None
             self.voice_segmenter = VoiceSegmenter()
             self.voice_pending: dict[str, str] = {}
             self.voice_pending_started_ms = 0
@@ -1749,7 +1750,6 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
 
         def contextMenuEvent(self, event: Any) -> None:
             menu = QMenu(self)
-            task_action = menu.addAction("输入任务…")
             record_action = menu.addAction("停止录音" if self.voice_mode == "dictation" else "语音录入…")
             call_action = menu.addAction("挂断语音通话" if self.voice_mode == "call" else "开始语音通话")
             menu.addSeparator()
@@ -1786,11 +1786,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             hide_action = menu.addAction("本次隐藏")
             exit_action = menu.addAction("本次关闭")
             selected = menu.exec(event.globalPos())
-            if selected == task_action:
-                # Let the native menu finish closing before activating a new
-                # top-level window; otherwise Windows can swallow its focus.
-                QTimer.singleShot(0, self._open_task_dialog)
-            elif selected == record_action:
+            if selected == record_action:
                 QTimer.singleShot(0, lambda: self._toggle_voice("dictation"))
             elif selected == call_action:
                 QTimer.singleShot(0, lambda: self._toggle_voice("call"))
@@ -1950,7 +1946,16 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             audio_format.setChannelCount(1)
             audio_format.setSampleFormat(QAudioFormat.SampleFormat.Int16)
             if not input_device.isFormatSupported(audio_format):
-                self._show_overlay("麦克风格式不支持", "需要 16 kHz 单声道录音", "ERROR", 4500)
+                audio_format = input_device.preferredFormat()
+            sample_format = audio_format.sampleFormat().name
+            try:
+                self.voice_converter = Pcm16MonoConverter(
+                    audio_format.sampleRate(),
+                    audio_format.channelCount(),
+                    sample_format,
+                )
+            except ValueError:
+                self._show_overlay("麦克风格式不支持", f"暂不支持设备格式 {sample_format}", "ERROR", 4500)
                 return
             self.voice_segmenter.reset()
             self.voice_source = QAudioSource(input_device, audio_format, self)
@@ -1960,6 +1965,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             if self.voice_device is None:
                 self.voice_source.deleteLater()
                 self.voice_source = None
+                self.voice_converter = None
                 self._show_overlay("无法开始录音", "请检查麦克风权限或是否被其他程序占用", "ERROR", 4500)
                 return
             self.voice_device.readyRead.connect(self._consume_voice_audio)
@@ -2019,6 +2025,10 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             data = bytes(self.voice_device.readAll())
             if not data:
                 return
+            if self.voice_converter is not None:
+                data = self.voice_converter.feed(data)
+            if not data:
+                return
             segments = self.voice_segmenter.feed(data)
             if self.voice_segmenter.meter_frames:
                 now_ms = self._now_ms()
@@ -2051,6 +2061,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
                 self.voice_source.deleteLater()
             self.voice_source = None
             self.voice_device = None
+            self.voice_converter = None
             if mode == "call":
                 self.speech_queue.clear()
                 if self.tts is not None:
@@ -2176,6 +2187,8 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             if self.voice_source is not None:
                 self.voice_source.suspend()
             self.voice_segmenter.reset()
+            if self.voice_converter is not None:
+                self.voice_converter.reset()
             self.tts.say(text)
 
         def _on_speech_state(self, state: Any) -> None:
@@ -2196,6 +2209,8 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
                 if self.voice_device is not None:
                     self.voice_device.readAll()
                 self.voice_segmenter.reset()
+                if self.voice_converter is not None:
+                    self.voice_converter.reset()
                 self.voice_source.resume()
 
         def _refresh_task_files(self) -> None:
