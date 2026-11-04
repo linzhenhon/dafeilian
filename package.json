@@ -1,6 +1,6 @@
 {
-  "name": "dsh-dafeiyu",
-  "version": "0.1.23",
+  "name": "dsh-dafeilian",
+  "version": "0.0.1",
   "description": "Dafeilian, a desktop-native DeepSeek Harness companion derived from DSH BigFish.",
   "author": "linzhenhon",
   "type": "module",

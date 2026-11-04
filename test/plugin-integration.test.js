@@ -22,7 +22,7 @@ test('plugin declares the service dependencies it actually consumes', () => {
 
 test('package metadata exposes the DSH web client bundle', () => {
   const require = createRequire(import.meta.url)
-  const metadata = require('dsh-dafeiyu/package.json')
+  const metadata = require('dsh-dafeilian/package.json')
   assert.equal(metadata.exports['./client'], './lib/client.js')
   assert.equal(metadata.dsh.client.platform, 'web')
   assert.deepEqual(metadata.bundleDependencies, [

@@ -18,10 +18,10 @@ export function createSettingsScope(ctx, schema, config, normalize) {
     // registered schema must not return the new Loader's live references.
     const legacySchema = Schema.object(Object.fromEntries(Object.entries(schema.dict)
       .map(([key, field]) => [key, field.extra('volatile', false)])))
-    return ctx.settings.register('dsh-dafeiyu', legacySchema, { base, applies: 'live' })
+    return ctx.settings.register('dsh-dafeilian', legacySchema, { base, applies: 'live' })
   }
   const service = ctx.settings
-  const namespace = ctx.fiber?.entry?.options?.id ?? 'dsh-dafeiyu'
+  const namespace = ctx.fiber?.entry?.options?.id ?? 'dsh-dafeilian'
   const watchers = new Set()
   let value = base
   let reading = false
@@ -43,7 +43,7 @@ export function createSettingsScope(ctx, schema, config, normalize) {
     for (const watcher of watchers) watcher(value)
   }
   const refresh = () => {
-    try { adopt(read()) } catch (error) { ctx.logger?.warn?.('dsh-dafeiyu settings refresh failed', error) }
+    try { adopt(read()) } catch (error) { ctx.logger?.warn?.('dsh-dafeilian settings refresh failed', error) }
   }
   const offDocument = ctx.on?.('settings/document-updated', (ns) => {
     if (ns === namespace && !reading) refresh()

@@ -2,39 +2,39 @@
 
 先确认插件安装在 `web` 还是官方桌面端的 `desktop` profile。使用命令操作前完全退出对应 Host，包括托盘或后台仍在运行的进程；操作完成后重新启动。使用应用内插件管理时，按应用提示重启。
 
-大肥镰统一从 `https://github.com/linzhenhon/dafeilian.git` 安装和更新。内部插件名仍是 `dsh-dafeiyu`；不要只按包名安装，否则会取得同名上游 npm 包。
+大肥镰统一从 `https://github.com/linzhenhon/dafeilian.git` 安装和更新。自 `v0.0.1` 起包名和插件 ID 为 `dsh-dafeilian`；旧接口、环境变量和数据目录继续兼容 `dsh-dafeiyu`。
 
 ## WebUI
 
 全局 CLI：
 
 ```powershell
-dsh plugin --profile web update dsh-dafeiyu
+dsh plugin --profile web update dsh-dafeilian
 ```
 
 `npx` 用户：
 
 ```powershell
-npx -y @deepseek-ai/dsh plugin --profile web update dsh-dafeiyu
+npx -y @deepseek-ai/dsh plugin --profile web update dsh-dafeilian
 ```
 
-从 DeepSeek Harness 源码启动的用户，在 Harness 仓库中执行 `pnpm dsh plugin --profile web update dsh-dafeiyu`。
+从 DeepSeek Harness 源码启动的用户，在 Harness 仓库中执行 `pnpm dsh plugin --profile web update dsh-dafeilian`。
 
 如果 `update` 没有取得仓库最新提交，移除后按 Git 地址重新安装：
 
 ```powershell
-npx -y @deepseek-ai/dsh plugin --profile web remove dsh-dafeiyu
+npx -y @deepseek-ai/dsh plugin --profile web remove dsh-dafeilian
 npx -y @deepseek-ai/dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian.git"
 ```
 
 ## 官方桌面端
 
-官方桌面端暂不支持应用内自动更新时，打开左侧 **插件**，卸载 **dsh-dafeiyu**，再通过 **添加插件** 输入 `https://github.com/linzhenhon/dafeilian.git`，安装后点击 **立即启用**。若应用提示刷新或重启，按提示操作。
+官方桌面端暂不支持应用内自动更新时，打开左侧 **插件**，卸载 **dsh-dafeilian**，再通过 **添加插件** 输入 `https://github.com/linzhenhon/dafeilian.git`，安装后点击 **立即启用**。从旧版迁移时，先卸载旧条目 **dsh-dafeiyu**。若应用提示刷新或重启，按提示操作。
 
 命令方式必须使用**桌面应用自带的 CLI**。先启动一次应用初始化 profile，完全退出，再执行：
 
 ```powershell
-dsh plugin --profile desktop update dsh-dafeiyu
+dsh plugin --profile desktop update dsh-dafeilian
 ```
 
 命令入口是安装目录中的 `resources/runtime/cli/bin/dsh`（Windows 为 `dsh.cmd`）；提供命令注册的版本也可从应用菜单注册它。独立 npm / `npx @deepseek-ai/dsh` 的 CLI 不能修改官方 Desktop profile。[上游安装归属说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/apps/desktop/README.zh.md#bundled-command-runtime)。
@@ -66,10 +66,10 @@ GitHub 自动生成的 **Source code (zip / tar.gz)** 是源码归档，不是�
 
 ```powershell
 # WebUI
-npx -y @deepseek-ai/dsh plugin --profile web remove dsh-dafeiyu
+npx -y @deepseek-ai/dsh plugin --profile web remove dsh-dafeilian
 
 # 官方桌面端，自带 CLI
-dsh plugin --profile desktop remove dsh-dafeiyu
+dsh plugin --profile desktop remove dsh-dafeilian
 ```
 
 ## DSH 迁移后角色大小恢复默认（#76）
@@ -81,7 +81,7 @@ dsh plugin --profile desktop remove dsh-dafeiyu
 如果设置页暂时无法使用，可以在退出 Host 并备份用户配置后，将旧值合并到**对应 profile 的用户 patch**。默认位置为 `~/.dsh/profiles/web/cordis.patch.yml` 或 `~/.dsh/profiles/desktop/cordis.patch.yml`；设置了 `DSH_HOME` 时以该目录为准。
 
 ```yaml
-- id: dsh-dafeiyu
+- id: dsh-dafeilian
   config:
     scale: 0.6
     bubbleScale: 0.8
@@ -111,7 +111,7 @@ Helper 的启动过程会写入诊断日志，超时、`exited before ready`、`
 
 ## 右键菜单改大小后重启回退（#95）
 
-0.1.23 起，插件会把右键菜单选择的大小、气泡大小和「减少动态」记到 `$DSH_HOME/dsh-dafeiyu/user-settings.json`（默认 `~/.dsh/dsh-dafeiyu/user-settings.json`）。这是 DSH `settings.update()` 写不进去时的兜底：
+为兼容旧安装，`v0.0.1` 继续把右键菜单选择的大小、气泡大小和「减少动态」记到 `$DSH_HOME/dsh-dafeiyu/user-settings.json`（默认 `~/.dsh/dsh-dafeiyu/user-settings.json`）。这是 DSH `settings.update()` 写不进去时的兜底：
 
 - 只要 DSH 里仍是选择时的旧值，helper 重启或 DSH 重启后仍沿用菜单选择；
 - 之后在 DSH 设置页改成新值时，兜底会自动清除，新值优先；

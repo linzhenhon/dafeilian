@@ -1,6 +1,16 @@
 # Changelog
 
-> This is release history. For installation, use the [latest stable release](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest), not commands from older entries.
+> This is release history. For installation, use the [latest stable release](https://github.com/linzhenhon/dafeilian/releases/latest), not commands from older entries.
+
+## 0.0.1 · 2026-11-04
+
+### Changed
+
+- Rename the fork's package, DSH plugin ID, settings namespace, and client
+  module identity from `dsh-dafeiyu` to `dsh-dafeilian`.
+- Keep the existing HTTP endpoints, `DSH_DAFEIYU_*` environment variables,
+  user-data directories, and Helper executable names as compatibility paths so
+  existing settings and cached assets continue to work.
 
 ## 0.1.23 · 2026-10-29
 

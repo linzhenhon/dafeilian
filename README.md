@@ -11,7 +11,7 @@
 </div>
 
 > [!IMPORTANT]
-> **大肥镰是 [DSH 大肥鱼](https://github.com/QCYTSN/dsh-dafeiyu) 的二次开发版本，并非上游官方发行版。** 感谢原作者与社区贡献者。本项目继续使用 `dsh-dafeiyu` 作为内部包名和插件 ID，以兼容现有配置，因此部分程序界面仍会显示“大肥鱼”；大肥镰的安装来源统一为本仓库。代码与素材分别遵循仓库内现有许可证，详见[素材与授权](#素材与授权)。
+> **大肥镰是 [DSH 大肥鱼](https://github.com/QCYTSN/dsh-dafeiyu) 的二次开发版本，并非上游官方发行版。** 感谢原作者与社区贡献者。当前包名和插件 ID 为 `dsh-dafeilian`，版本为 `v0.0.1`；旧的接口路径、环境变量、数据目录和 Helper 文件名暂时保留 `dsh-dafeiyu` 作为兼容层。大肥镰的安装来源统一为本仓库。代码与素材分别遵循仓库内现有许可证，详见[素材与授权](#素材与授权)。
 
 大肥镰由 DSH 插件启动，随 DSH 一起退出。透明、无边框、始终置顶的原生窗口，让你在编辑器、浏览器或其他应用中也能看到 Agent 的工作状态。
 
@@ -37,8 +37,8 @@
 
 | 使用方式 | 安装位置 | 设置入口（DSH 0.2） | 角色右键菜单的打开目标 |
 | --- | --- | --- | --- |
-| 浏览器 WebUI | `web` profile | 左侧插件 → dsh-dafeiyu | WebUI，默认 `http://127.0.0.1:3080/` |
-| 官方桌面端 | `desktop` profile | 左侧插件 → dsh-dafeiyu | 通过 `dsh://open` 唤起桌面应用 |
+| 浏览器 WebUI | `web` profile | 左侧插件 → dsh-dafeilian | WebUI，默认 `http://127.0.0.1:3080/` |
+| 官方桌面端 | `desktop` profile | 左侧插件 → dsh-dafeilian | 通过 `dsh://open` 唤起桌面应用 |
 
 **WebUI 中安装的插件不会自动出现在桌面端。** 两边都启用会各自启动原生角色，可以在其中一个 profile 关闭“大肥鱼”。第三方桌面包装器可能仍使用 `web` profile，请以它的实际启动方式为准。
 
@@ -54,7 +54,7 @@
 https://github.com/linzhenhon/dafeilian.git
 ```
 
-这是 Git 源码安装，需要能够访问 GitHub，并且系统能够运行 Git。DSH 会把地址交给 pnpm 安装，安装后的内部插件名仍是 `dsh-dafeiyu`。本仓库没有提交预编译 Helper，安装前请同时阅读[平台与运行环境](#平台与运行环境)。
+这是 Git 源码安装，需要能够访问 GitHub，并且系统能够运行 Git。DSH 会把地址交给 pnpm 安装，安装后的插件名是 `dsh-dafeilian`。本仓库没有提交预编译 Helper，安装前请同时阅读[平台与运行环境](#平台与运行环境)。
 
 ### 浏览器 WebUI
 
@@ -86,9 +86,9 @@ pnpm dsh web
 1. 打开官方 DeepSeek Harness 桌面应用，点击左侧 **插件**。
 2. 点击 **添加插件**，输入 `https://github.com/linzhenhon/dafeilian.git`，点击 **安装**。
 3. 安装成功后点击 **立即启用**，桌面角色会出现在桌面上。
-4. 在插件列表打开 **dsh-dafeiyu**，调整角色、气泡和余额设置，修改实时生效。
+4. 在插件列表打开 **dsh-dafeilian**，调整角色、气泡和余额设置，修改实时生效。
 
-这套流程使用桌面应用自带的安装环境，用户无需单独安装 Node.js；Git 源码安装仍要求系统能够访问 GitHub 和运行 Git。若应用提示刷新或重启，按提示操作；失败时展开 **查看安装详情** 并保留日志。不要只填 `dsh-dafeiyu`，那会安装同名上游 npm 包，而不是大肥镰。
+这套流程使用桌面应用自带的安装环境，用户无需单独安装 Node.js；Git 源码安装仍要求系统能够访问 GitHub 和运行 Git。若应用提示刷新或重启，按提示操作；失败时展开 **查看安装详情** 并保留日志。请使用完整 GitHub 地址，不要只填包名。
 
 使用命令安装时：
 
@@ -100,7 +100,7 @@ pnpm dsh web
    dsh plugin --profile desktop add "https://github.com/linzhenhon/dafeilian.git"
    ```
 
-4. 重新打开桌面应用，在左侧插件 → dsh-dafeiyu 调整角色。
+4. 重新打开桌面应用，在左侧插件 → dsh-dafeilian 调整角色。
 
 **这里的 `dsh` 必须来自桌面应用。** 独立安装的 npm / `npx @deepseek-ai/dsh` CLI 不能修改官方桌面端的 profile。请参考 [DSH 官方桌面端说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/apps/desktop/README.zh.md#bundled-command-runtime)。
 
@@ -188,29 +188,29 @@ python -m pip install "PySide6>=6.7,<6.12"
 WebUI 用户完全退出 DSH 后执行：
 
 ```powershell
-npx -y @deepseek-ai/dsh plugin --profile web update dsh-dafeiyu
+npx -y @deepseek-ai/dsh plugin --profile web update dsh-dafeilian
 ```
 
 如果更新后仍停留在旧提交，先移除再按仓库地址重新安装：
 
 ```powershell
-npx -y @deepseek-ai/dsh plugin --profile web remove dsh-dafeiyu
+npx -y @deepseek-ai/dsh plugin --profile web remove dsh-dafeilian
 npx -y @deepseek-ai/dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian.git"
 ```
 
-官方桌面端暂不支持应用内自动更新时，在插件页面卸载 `dsh-dafeiyu`，再输入 `https://github.com/linzhenhon/dafeilian.git` 安装并立即启用；也可以完全退出应用后使用自带的命令：
+官方桌面端暂不支持应用内自动更新时，在插件页面卸载 `dsh-dafeilian`，再输入 `https://github.com/linzhenhon/dafeilian.git` 安装并立即启用；也可以完全退出应用后使用自带的命令：
 
 ```powershell
-dsh plugin --profile desktop update dsh-dafeiyu
+dsh plugin --profile desktop update dsh-dafeilian
 ```
 
 然后重新启动对应客户端。回退、移除、DSH 迁移后恢复大小，以及 Windows `EPERM` 的处理见 [更新与回退](docs/UPDATING.md)。
 
-- DSH 0.2 设置页变化：从本仓库安装当前 `main`，通过左侧插件 → dsh-dafeiyu 打开设置；较旧 Host 保留原设置入口。
+- DSH 0.2 设置页变化：从本仓库安装当前 `main`，通过左侧插件 → dsh-dafeilian 打开设置；较旧 Host 保留原设置入口。
 - 桌面端安装只显示 `[exit 1]`：该信息不足以确定原因，请附上插件安装详细日志（如 `hub.log`）、DSH 版本、系统和安装方式。
 - Git 安装失败：确认 Git 已加入 `PATH`、能够访问 GitHub，并使用完整地址 `https://github.com/linzhenhon/dafeilian.git`。
 - 余额查询失败：检查 DSH 中的凭据及所用网关是否支持余额接口。
-- 角色不出现：检查 profile、插件是否启用、Host 是否有可用图形桌面，以及 Python 是否已安装 `PySide6>=6.7,<6.12`。Helper 的启动原因会写入日志：
+- 角色不出现：检查 profile、插件是否启用、Host 是否有可用图形桌面，以及 Python 是否已安装 `PySide6>=6.7,<6.12`。为兼容旧安装，Helper 的日志目录暂时沿用旧名称：
   - Windows：`%LOCALAPPDATA%\dsh-dafeiyu\logs\helper.log`
   - macOS：`~/Library/Logs/dsh-dafeiyu/helper.log`
   - Linux：`${XDG_STATE_HOME:-~/.local/state}/dsh-dafeiyu/helper.log`

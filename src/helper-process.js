@@ -300,7 +300,7 @@ function resolveHelperLaunch({
   if (platform === 'win32' && fileExists(bundledPath)) {
     // Run the versioned Windows-local copy when the cache is available. The
     // plugin directory then never holds a running executable, so a plugin
-    // update can replace node_modules/dsh-dafeiyu while DSH is still open
+    // update can replace node_modules/dsh-dafeilian while DSH is still open
     // (issue #66: pnpm rename failed with EPERM on the locked directory).
     try {
       return { command: wslHelperCache({ bundledPath }), args: [] }
@@ -468,7 +468,7 @@ export class HelperProcess {
 
       if (launch.notice && !this.launchNoticeLogged) {
         this.launchNoticeLogged = true
-        this.logger.warn?.(`dsh-dafeiyu ${launch.notice}`)
+        this.logger.warn?.(`dsh-dafeilian ${launch.notice}`)
         this.#log('WARN', launch.notice)
       }
       if (this.startAttempts === 1) {
@@ -495,7 +495,7 @@ export class HelperProcess {
     } catch (error) {
       this.child = undefined
       this.spawned = false
-      this.logger.error?.(`dsh-dafeiyu helper failed to start: ${error.message}`)
+      this.logger.error?.(`dsh-dafeilian helper failed to start: ${error.message}`)
       this.#log('ERROR', `launch error: ${error.message}`)
       if (!this.stopping && !this.restartSuppressed) {
         this.#countStartFailure(`launch error: ${error.message}`)
@@ -513,7 +513,7 @@ export class HelperProcess {
       this.startupTimer = setTimeout(() => {
         if (this.child === child && !this.spawned) {
           const diagnostics = this.log?.path ? `; diagnostics: ${this.log.path}` : ''
-          this.logger.warn?.(`dsh-dafeiyu helper readiness timed out after ${startupTimeoutMs}ms${diagnostics}`)
+          this.logger.warn?.(`dsh-dafeilian helper readiness timed out after ${startupTimeoutMs}ms${diagnostics}`)
           this.#log('ERROR', `readiness timed out after ${startupTimeoutMs}ms; killing helper pid=${String(child.pid)}`)
           child.kill()
         }
@@ -521,11 +521,11 @@ export class HelperProcess {
       this.startupTimer.unref?.()
     })
     child.once('error', (error) => {
-      this.logger.error?.(`dsh-dafeiyu helper failed to start: ${error.message}`)
+      this.logger.error?.(`dsh-dafeilian helper failed to start: ${error.message}`)
       this.#log('ERROR', `spawn error: ${error.message}`)
       if (!this.launchHintLogged && error.code === 'ENOENT') {
         this.launchHintLogged = true
-        const hint = `dsh-dafeiyu Helper launch command was not found. If the Python fallback was selected, install python3 and "PySide6>=6.7,<7" for ${process.platform}/${process.arch}.`
+        const hint = `dsh-dafeilian Helper launch command was not found. If the Python fallback was selected, install python3 and "PySide6>=6.7,<7" for ${process.platform}/${process.arch}.`
         this.logger.error?.(hint)
         this.#log('ERROR', hint)
       }
@@ -566,14 +566,14 @@ export class HelperProcess {
           return
         }
         this.startFailures = 0
-        this.logger.warn?.(`dsh-dafeiyu helper exited (code=${String(code)}, signal=${String(signal)}); restarting`)
+        this.logger.warn?.(`dsh-dafeilian helper exited (code=${String(code)}, signal=${String(signal)}); restarting`)
         this.#scheduleRestart()
       }
     })
     createInterface({ input: child.stdout }).on('line', (line) => this.#handleReply(line))
     createInterface({ input: child.stderr }).on('line', (line) => {
       if (!line.trim()) return
-      this.logger.warn?.(`dsh-dafeiyu helper: ${line}`)
+      this.logger.warn?.(`dsh-dafeilian helper: ${line}`)
       this.#log('WARN', `helper stderr: ${line.slice(0, 2000)}`)
       // The Python fallback is a supported path on architectures without a
       // bundled Helper; name the missing package instead of leaving only a
@@ -584,7 +584,7 @@ export class HelperProcess {
       if (!this.pythonHintLogged
         && /(?:ModuleNotFoundError|ImportError).*PySide6|PySide6 is required for visual mode/.test(line)) {
         this.pythonHintLogged = true
-        const hint = `dsh-dafeiyu fell back to the Python Helper but PySide6 is unavailable. Install "PySide6>=6.7,<7" for ${process.platform}/${process.arch}, or install a release that bundles a Helper for this architecture.`
+        const hint = `dsh-dafeilian fell back to the Python Helper but PySide6 is unavailable. Install "PySide6>=6.7,<7" for ${process.platform}/${process.arch}, or install a release that bundles a Helper for this architecture.`
         this.logger.error?.(hint)
         this.#log('ERROR', hint)
       }
@@ -664,7 +664,7 @@ export class HelperProcess {
       this.queue.splice(sameKind >= 0 ? sameKind : 0, 1)
       if (!this.queueDropWarned) {
         this.queueDropWarned = true
-        this.logger.warn?.(`dsh-dafeiyu helper message queue reached ${maxPendingMessages}; dropping stale updates`)
+        this.logger.warn?.(`dsh-dafeilian helper message queue reached ${maxPendingMessages}; dropping stale updates`)
       }
     }
     this.queue.push({ kind, line })
@@ -731,7 +731,7 @@ export class HelperProcess {
     } catch {
       // Non-protocol stdout is still useful in development logs.
     }
-    this.logger.debug?.(`dsh-dafeiyu helper: ${line}`)
+    this.logger.debug?.(`dsh-dafeilian helper: ${line}`)
   }
 
   #startHeartbeat() {
@@ -742,7 +742,7 @@ export class HelperProcess {
       const child = this.child
       if (!child || !this.spawned) return
       if (Date.now() - this.lastPongAt > timeoutMs) {
-        this.logger.warn?.('dsh-dafeiyu helper heartbeat timed out')
+        this.logger.warn?.('dsh-dafeilian helper heartbeat timed out')
         this.#log('ERROR', `heartbeat timed out after ${String(Date.now() - this.lastPongAt)}ms; killing helper`)
         child.kill()
         return
@@ -796,11 +796,11 @@ export class HelperProcess {
     if (this.startFailures >= maxFailures) {
       this.restartSuppressed = true
       const diagnostics = this.log?.path ? `; diagnostics: ${this.log.path}` : ''
-      this.logger.error?.(`dsh-dafeiyu helper failed to start ${this.startFailures} times; giving up (${reason})${diagnostics}`)
+      this.logger.error?.(`dsh-dafeilian helper failed to start ${this.startFailures} times; giving up (${reason})${diagnostics}`)
       this.#log('ERROR', `giving up after ${this.startFailures} failed starts; the companion stays disabled until the next DSH start`)
       return
     }
-    this.logger.warn?.(`dsh-dafeiyu helper failed to start; scheduling restart (${this.startFailures}/${maxFailures}) (${reason})`)
+    this.logger.warn?.(`dsh-dafeilian helper failed to start; scheduling restart (${this.startFailures}/${maxFailures}) (${reason})`)
     this.#scheduleRestart()
   }
 

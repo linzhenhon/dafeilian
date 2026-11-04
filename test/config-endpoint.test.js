@@ -129,5 +129,5 @@ test('settings client debounces each slider independently', async () => {
   assert.match(source, /sliderTimers = useRef\(new Map\(\)\)/u)
   assert.match(source, /sliderTimers\.current\.get\(field\)/u)
   assert.match(source, /sliderTimers\.current\.set\(field, timer\)/u)
-  assert.match(source, /key: 'dsh-dafeiyu'/u)
+  assert.match(source, /key: 'dsh-dafeilian'/u)
 })

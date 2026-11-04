@@ -25,7 +25,7 @@ import {
 const require = createRequire(import.meta.url)
 const pkg = require('../package.json')
 
-export const name = 'dsh-dafeiyu'
+export const name = 'dsh-dafeilian'
 // The plugin's feature is built on session events, and mounting requires the
 // settings service (used to read live config). Keep the declared inject in
 // sync with those real hard dependencies instead of listing a service that
@@ -374,7 +374,7 @@ function mount(ctx, config = {}, eventCtx = ctx) {
     // DSH treats a failing plugin activation as fatal for the whole boot
     // (dsh-app-boot rethrows init rejections). A host-side API change must
     // cost the pet its session, never the host its startup.
-    logger.error?.(`dsh-dafeiyu failed to activate and stays disabled for this session: ${error instanceof Error ? error.message : String(error)}`)
+    logger.error?.(`dsh-dafeilian failed to activate and stays disabled for this session: ${error instanceof Error ? error.message : String(error)}`)
   }
 }
 
@@ -392,7 +392,7 @@ function createEffectiveSettings(host, overrides, logger) {
       try {
         callback(next)
       } catch (error) {
-        logger.warn?.(`dsh-dafeiyu failed to deliver settings: ${error instanceof Error ? error.message : String(error)}`)
+        logger.warn?.(`dsh-dafeilian failed to deliver settings: ${error instanceof Error ? error.message : String(error)}`)
       }
     }
   }
@@ -433,7 +433,7 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
   const overrides = createUserSettingsStore(defaultUserSettingsPath(), {
     warn(message) {
       diagnosticsLog.write('WARN', message)
-      logger.warn?.(`dsh-dafeiyu ${message}`)
+      logger.warn?.(`dsh-dafeilian ${message}`)
     },
   })
   const settings = createEffectiveSettings(hostSettings, overrides, logger)
@@ -495,7 +495,7 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
 
   // `settings.describe()` lists the settings-page namespaces, not the
   // configEditor entries that `settings.update()` writes. Its absence of
-  // "dsh-dafeiyu" is not evidence of a failed write (issue #95), so it is only
+  // "dsh-dafeilian" is not evidence of a failed write (issue #95), so it is only
   // printed on an actual failure and labelled explicitly.
   const settingsPageNamespaceList = () => {
     try {
@@ -557,7 +557,7 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
 
   const startRuntime = (resolved) => {
     if (resolved.enabled === false) {
-      logger.info?.('dsh-dafeiyu is disabled')
+      logger.info?.('dsh-dafeilian is disabled')
       return
     }
     bridge = new HelperProcess({
@@ -586,9 +586,9 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
           const detail = error instanceof Error ? error.message : String(error)
           diagnosticsLog.write(
             'ERROR',
-            `settings.update failed for namespace "${hostSettings.namespace ?? 'dsh-dafeiyu'}": ${detail}; settings-page namespaces (describe, not write targets): ${settingsPageNamespaceList() || '(none)'}; kept native menu values: ${JSON.stringify(overrides.snapshot())}`,
+            `settings.update failed for namespace "${hostSettings.namespace ?? 'dsh-dafeilian'}": ${detail}; settings-page namespaces (describe, not write targets): ${settingsPageNamespaceList() || '(none)'}; kept native menu values: ${JSON.stringify(overrides.snapshot())}`,
           )
-          logger.warn?.(`dsh-dafeiyu failed to persist helper settings: ${detail}`)
+          logger.warn?.(`dsh-dafeilian failed to persist helper settings: ${detail}`)
         }).finally(() => {
           // The Helper already applied the menu choice locally. Re-sending the
           // effective CONFIG keeps that choice in the replay snapshot if the
@@ -679,7 +679,7 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
       diagnosticsLogged = true
       diagnosticsLog.write(
         'INFO',
-        `settings persistence (activation): namespace="${hostSettings.namespace ?? 'dsh-dafeiyu'}"; update=${typeof hostSettings.update === 'function'}; native-menu fallback: ${JSON.stringify(overrides.snapshot())}`,
+        `settings persistence (activation): namespace="${hostSettings.namespace ?? 'dsh-dafeilian'}"; update=${typeof hostSettings.update === 'function'}; native-menu fallback: ${JSON.stringify(overrides.snapshot())}`,
       )
     }
     bridge.start()
@@ -698,7 +698,7 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
       detail: 'DSH · 等待下一次任务',
     }))
     if (balance.get().status !== 'disabled') bridge.send(createMessage(CompanionMessageKind.BALANCE, balance.get()))
-    logger.info?.('dsh-dafeiyu companion bridge started')
+    logger.info?.('dsh-dafeilian companion bridge started')
   }
 
   startRuntime(settings.get())
@@ -733,7 +733,7 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
       }
       for (const message of reducer.handle(session, event)) bridge.send(message)
     } catch (error) {
-      logger.error?.('dsh-dafeiyu failed to handle session event', error)
+      logger.error?.('dsh-dafeilian failed to handle session event', error)
     }
   }, { global: true })
   const offDisposed = eventCtx.on('session/disposed', (session) => {
@@ -741,7 +741,7 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
     try {
       for (const message of reducer.disposeSession(session)) bridge.send(message)
     } catch (error) {
-      logger.error?.('dsh-dafeiyu failed to dispose session', error)
+      logger.error?.('dsh-dafeilian failed to dispose session', error)
     }
   }, { global: true })
 
@@ -776,7 +776,7 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
     } catch (error) {
       // This callback runs inside the host's settings dispatch; a throw here
       // would take the host's settings service down with the pet.
-      logger.error?.(`dsh-dafeiyu failed to apply settings: ${error instanceof Error ? error.message : String(error)}`)
+      logger.error?.(`dsh-dafeilian failed to apply settings: ${error instanceof Error ? error.message : String(error)}`)
     }
   })
   // A credential or account change invalidates the old display immediately.
@@ -794,15 +794,15 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
     ctx.inject(['webServer'], (httpCtx) => {
       httpCtx.effect(
         () => httpCtx.webServer.register({ kind: 'exact', path: CONFIG_ENDPOINT, handler: createConfigHandler(settings) }),
-        'dsh-dafeiyu: local settings endpoint',
+        'dsh-dafeilian: local settings endpoint',
       )
       httpCtx.effect(
         () => httpCtx.webServer.register({ kind: 'exact', path: EVENTS_ENDPOINT, handler: createEventsHandler(eventStream) }),
-        'dsh-dafeiyu: local event stream',
+        'dsh-dafeilian: local event stream',
       )
       httpCtx.effect(
         () => httpCtx.webServer.register({ kind: 'exact', path: BALANCE_ENDPOINT, handler: createBalanceHandler(balance) }),
-        'dsh-dafeiyu: local balance endpoint',
+        'dsh-dafeilian: local balance endpoint',
       )
       httpCtx.effect(
         () => httpCtx.webServer.register({ kind: 'exact', path: TASK_TARGET_ENDPOINT,
@@ -810,28 +810,28 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
             activeSessionId = sessionId
             diagnosticsLog.write('INFO', 'current conversation target selected')
           }) }),
-        'dsh-dafeiyu: current conversation target',
+        'dsh-dafeilian: current conversation target',
       )
       const assetRoutes = createAssetRoutes()
       if (assetRoutes) {
         httpCtx.effect(
           () => httpCtx.webServer.register({ kind: 'exact', path: MANIFEST_ENDPOINT, handler: assetRoutes.manifestHandler }),
-          'dsh-dafeiyu: local manifest endpoint',
+          'dsh-dafeilian: local manifest endpoint',
         )
         httpCtx.effect(
           () => httpCtx.webServer.register({ kind: 'exact', path: FRAME_ENDPOINT, handler: assetRoutes.frameHandler }),
-          'dsh-dafeiyu: local frame endpoint',
+          'dsh-dafeilian: local frame endpoint',
         )
         httpCtx.effect(
           () => httpCtx.webServer.register({ kind: 'exact', path: SOUND_ENDPOINT, handler: assetRoutes.soundHandler }),
-          'dsh-dafeiyu: local sound preview endpoint',
+          'dsh-dafeilian: local sound preview endpoint',
         )
         httpCtx.effect(
           () => httpCtx.webServer.register({ kind: 'exact', path: CUSTOM_SOUND_ENDPOINT,
             handler: createCustomSoundsHandler({ onChange() {
               if (bridge) bridge.send(createMessage(CompanionMessageKind.CONFIG, { customSoundRevision: ++customSoundRevision }))
             } }) }),
-          'dsh-dafeiyu: local custom sound upload endpoint',
+          'dsh-dafeilian: local custom sound upload endpoint',
         )
       }
     })
