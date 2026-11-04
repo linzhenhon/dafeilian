@@ -17,7 +17,7 @@
 
 识别出的中文会在填入输入框或发送任务前转为简体字。Windows 使用系统自带的简繁转换；Linux 和 macOS 可在语音识别 Python 环境安装 `opencc-python-reimplemented` 来启用同样的转换。
 
-本地识别需要一个装有 `torch`、`transformers`、`soundfile` 和 `scipy` 的 Python 环境，以及已下载的 `openai/whisper-base` 模型。在插件设置的“语音输入设置”中填写 Python 路径；如果模型不在默认缓存中，再填写模型路径或 Hugging Face 缓存目录。语音识别不调用云端接口。没有可用麦克风或模型时，桌宠会显示具体错误，键盘输入仍可使用。
+本地识别需要一个装有 `torch`、`transformers`、`soundfile`、`scipy` 和 `opencc-python-reimplemented` 的 Python 环境，以及已下载的 `openai/whisper-base` 模型。在插件设置的“语音输入设置”中填写 Python 路径；如果模型不在默认缓存中，再填写模型路径或 Hugging Face 缓存目录。语音识别不调用云端接口。没有可用麦克风或模型时，桌宠会显示具体错误，键盘输入仍可使用。
 
 录音会优先使用 16 kHz 单声道；麦克风不原生支持该格式时，会自动采用设备首选的采样率和声道数，并在本机转换后再识别。如果仍提示无法开始录音，请在系统隐私设置中允许 Python 或 `dsh-dafeiyu-helper` 使用麦克风，并确认麦克风没有被其他程序独占。
 

@@ -14,6 +14,17 @@ import sys
 import warnings
 
 
+# Keep a small dependency-free safety net for bare Python environments. Full
+# conversion uses OpenCC below; these common Whisper characters also keep short
+# dictation readable if the optional converter cannot be imported at runtime.
+_BASIC_TRADITIONAL_TO_SIMPLIFIED = str.maketrans({
+    "務": "务",
+    "質": "质",
+    "點": "点",
+    "審": "审",
+})
+
+
 def max_tokens_for_audio(seconds: float) -> int:
     """Bound decoding to the length of a short recorded utterance."""
     return min(256, max(48, math.ceil(seconds * 14)))
@@ -52,7 +63,7 @@ def simplify_chinese(text: str) -> str:
         try:
             from opencc import OpenCC
         except ImportError:
-            return text
+            return text.translate(_BASIC_TRADITIONAL_TO_SIMPLIFIED)
         return OpenCC("t2s").convert(text)
     return text
 
