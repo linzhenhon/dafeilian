@@ -1,18 +1,21 @@
 <div align="center">
 
-# DSH 大肥鱼 🐋
+# DSH 大肥镰 🌾
 
-**在桌面上陪你工作的 DeepSeek Harness 伴侣。**
+**基于“大肥鱼”二次开发，在桌面上陪你工作的 DeepSeek Harness 伴侣。**
 
-[English](README_EN.md) · [npm](https://www.npmjs.com/package/dsh-dafeiyu) · [下载最新版](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest) · [更新日志](CHANGELOG.md)
+[本仓库](https://github.com/linzhenhon/dafeilian) · [上游项目](https://github.com/QCYTSN/dsh-dafeiyu) · [English（上游）](README_EN.md) · [npm（上游包）](https://www.npmjs.com/package/dsh-dafeiyu) · [上游安装包](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest) · [更新日志](CHANGELOG.md)
 
-[![npm](https://img.shields.io/npm/v/dsh-dafeiyu?label=npm)](https://www.npmjs.com/package/dsh-dafeiyu) [![Release](https://img.shields.io/github/v/release/QCYTSN/dsh-dafeiyu)](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)
+[![GitHub](https://img.shields.io/badge/GitHub-linzhenhon%2Fdafeilian-181717?logo=github)](https://github.com/linzhenhon/dafeilian) [![npm（上游）](https://img.shields.io/npm/v/dsh-dafeiyu?label=npm%20upstream)](https://www.npmjs.com/package/dsh-dafeiyu) [![上游 Release](https://img.shields.io/github/v/release/QCYTSN/dsh-dafeiyu?label=upstream%20release)](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)
 
 </div>
 
-大肥鱼由 DSH 插件启动，随 DSH 一起退出。透明、无边框、始终置顶的原生窗口，让你在编辑器、浏览器或其他应用中也能看到 Agent 的工作状态。
+> [!IMPORTANT]
+> **大肥镰是 [DSH 大肥鱼](https://github.com/QCYTSN/dsh-dafeiyu) 的二次开发版本，并非上游官方发行版。** 感谢原作者与社区贡献者。本项目当前继续使用 `dsh-dafeiyu` 作为 npm 包名、插件 ID 和兼容标识，因此安装命令及部分程序界面仍会显示“大肥鱼”。代码与素材分别遵循仓库内现有许可证；二次分发前请阅读[素材与授权](#素材与授权)。
 
-> **当前稳定版：0.1.23。** 修复 Linux arm64 / 无随架构 Helper 时 Python 回退未给出 PySide6 安装指引的问题；同时包含 0.1.22 的审批提示音与场景开关、0.1.21 的跨显示器拖动与菜单设置兜底、0.1.20 的透明区域点击穿透与 0.1.19 的 Helper 冷启动诊断。安装时填写 `dsh-dafeiyu@0.1.23`，离线安装请从[最新版下载页](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)选择 **`dsh-dafeiyu-0.1.23.tgz`**；Windows、Linux 与 macOS 共用这一个包。GitHub 自动生成的 **Source code (zip / tar.gz)** 是源码，不是安装包。
+大肥镰由 DSH 插件启动，随 DSH 一起退出。透明、无边框、始终置顶的原生窗口，让你在编辑器、浏览器或其他应用中也能看到 Agent 的工作状态。
+
+> **当前兼容基线：上游 0.1.23。** 大肥镰仓库目前尚未发布独立 npm 包或 GitHub Release；下文安装命令使用的 `dsh-dafeiyu@0.1.23` 和下载文件均来自上游。离线安装请从[上游最新版下载页](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)选择 **`dsh-dafeiyu-0.1.23.tgz`**；Windows、Linux 与 macOS 共用这一个包。GitHub 自动生成的 **Source code (zip / tar.gz)** 是源码，不是安装包。
 
 <img src="assets/pet/custom/idle_pose.png" width="300" alt="公开源码使用的原创机器人形象">
 
@@ -28,7 +31,7 @@
 - 气泡支持键盘输入、点按录音填字和持续语音通话；通话会在停顿后逐句发送到当前 DSH 对话并朗读回复。语音识别在本机运行，详见 [语音输入设置](docs/voice-input.md)。
 - 可选在 DSH 页面右下角显示轻量角色，默认关闭。
 
-状态来自 DSH 会话事件。大肥鱼不会读取屏幕；推理强度与进度只显示上游实际提供的信息。
+状态来自 DSH 会话事件。大肥镰不会读取屏幕；推理强度与进度只显示上游实际提供的信息。
 
 ## 先选你的 DSH 客户端
 
@@ -74,7 +77,7 @@ pnpm dsh web
 
 1. 打开官方 DeepSeek Harness 桌面应用，点击左侧 **插件**。
 2. 点击 **添加插件**，输入 `dsh-dafeiyu@0.1.23`，点击 **安装**。
-3. 安装成功后点击 **立即启用**，大肥鱼会出现在桌面上。
+3. 安装成功后点击 **立即启用**，桌面角色会出现在桌面上。
 4. 在插件列表打开 **dsh-dafeiyu**，调整角色、气泡和余额设置，修改实时生效。
 
 这套流程使用桌面应用自带的安装环境，用户无需安装 Node.js 或执行 npm 命令。若应用提示刷新或重启，按提示操作；失败时展开 **查看安装详情** 并保留日志。
@@ -97,7 +100,7 @@ pnpm dsh web
 
 ### 使用 Release 安装包
 
-打开[最新版下载页](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)，在 **Assets** 中下载 **`dsh-dafeiyu-0.1.23.tgz`**，用对应客户端的命令安装；**无需解压**。不要选择历史版本，也不要下载 **Source code** 作为安装包：
+打开[上游最新版下载页](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)，在 **Assets** 中下载 **`dsh-dafeiyu-0.1.23.tgz`**，用对应客户端的命令安装；**无需解压**。不要选择历史版本，也不要下载 **Source code** 作为安装包：
 
 ```powershell
 # WebUI；文件路径替换为实际下载路径
@@ -111,7 +114,7 @@ dsh plugin --profile desktop add "C:\Downloads\dsh-dafeiyu-0.1.23.tgz"
 
 ## 余额显示
 
-余额默认出现在**大肥鱼状态气泡底部和设置页**，查询逻辑由两个客户端共用。设置页可查看总余额、赠送和充值，并手动刷新。
+余额默认出现在**桌面角色状态气泡底部和设置页**，查询逻辑由两个客户端共用。设置页可查看总余额、赠送和充值，并手动刷新。
 
 | 来源 | 凭据来自哪里 | 查询内容 |
 | --- | --- | --- |
@@ -119,7 +122,7 @@ dsh plugin --profile desktop add "C:\Downloads\dsh-dafeiyu-0.1.23.tgz"
 | API Key | DSH 的凭据服务；旧 Host 无该服务时读取启动环境 | DeepSeek `/user/balance` |
 | 已登录账户 | DSH 的 DeepSeek 账户服务 | 账户充值与赠送钱包 |
 
-- 在 **DSH 模型／账户设置**中配置凭据；大肥鱼设置页不需要再填写 API Key。
+- 在 **DSH 模型／账户设置**中配置凭据；插件设置页不需要再填写 API Key。
 - API 余额与账户余额分别标明来源；CNY / USD 分别显示。
 - 每分钟自动刷新，同一 Host 内共享缓存；手动刷新最快每 5 秒一次。
 - 服务失败时保留上次成功结果，并标明“上次查询”；未配置、授权失败和网络失败分别提示。
@@ -133,7 +136,7 @@ dsh plugin --profile desktop add "C:\Downloads\dsh-dafeiyu-0.1.23.tgz"
 
 | 设置 | 作用 |
 | --- | --- |
-| 启用大肥鱼 | 开关当前 profile 的原生角色 |
+| 启用大肥鱼（当前兼容名称） | 开关当前 profile 的原生角色 |
 | 角色大小 / 气泡大小 | 独立调整；小气泡保留基本字号 |
 | 待机文案 | 修改桌宠待机气泡的标题，输入后点击“保存”或按回车，立即生效；默认“小弟陪大哥待命” |
 | 安静 / 标准 / 活泼 | 每次待机动作结束后，分别休息 45～90 / 25～45 / 12～22 秒 |
@@ -174,7 +177,7 @@ WebUI 用户完全退出 DSH 后执行：
 npx -y @deepseek-ai/dsh plugin --profile web update dsh-dafeiyu
 ```
 
-官方桌面端 **0.2.0-rc.2 暂不支持应用内自动更新**。在插件页面卸载大肥鱼，再添加 `dsh-dafeiyu@0.1.23` 并立即启用；也可以完全退出应用后使用自带的命令：
+官方桌面端 **0.2.0-rc.2 暂不支持应用内自动更新**。在插件页面卸载 `dsh-dafeiyu`，再添加 `dsh-dafeiyu@0.1.23` 并立即启用；也可以完全退出应用后使用自带的命令：
 
 ```powershell
 dsh plugin --profile desktop update dsh-dafeiyu
@@ -182,7 +185,7 @@ dsh plugin --profile desktop update dsh-dafeiyu
 
 然后重新启动对应客户端。回退、移除、DSH 迁移后恢复大小，以及 Windows `EPERM` 的处理见 [更新与回退](docs/UPDATING.md)。
 
-- DSH 0.2 设置页变化：安装当前稳定版，通过左侧插件 → dsh-dafeiyu 打开设置；较旧 Host 保留原设置入口。
+- DSH 0.2 设置页变化：安装上游当前稳定版，通过左侧插件 → dsh-dafeiyu 打开设置；较旧 Host 保留原设置入口。
 - 桌面端安装只显示 `[exit 1]`：该信息不足以确定原因，请附上插件安装详细日志（如 `hub.log`）、DSH 版本、系统和安装方式。
 - 余额查询失败：检查 DSH 中的凭据及所用网关是否支持余额接口。
 - 角色不出现：检查 profile、插件是否启用，以及 Host 是否有可用图形桌面。Helper 的启动原因现在会写入日志：
@@ -208,7 +211,7 @@ npm run test:helper:packaged
 
 CI 还会隔离安装 DSH 0.2.0-rc.2 并运行 `scripts/test-dsh-settings.mjs`，验证新设置接口。该检查不读取用户 profile 或凭据，文件写入使用测试适配器。
 
-项目通过 GitHub Actions 构建三个平台的 Helper 并发布；维护者操作见 [发布说明](https://github.com/QCYTSN/dsh-dafeiyu/blob/main/docs/RELEASING.md)。
+上游项目通过 GitHub Actions 构建三个平台的 Helper 并发布；维护者操作见 [发布说明](docs/RELEASING.md)。大肥镰发布独立版本前，应先完成自己的包名、版本、仓库地址、许可证和 Release 工作流配置，不能把上游 npm 包或 Release 误标为本项目发行版。
 
 ## 素材与授权
 
