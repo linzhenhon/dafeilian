@@ -4,18 +4,18 @@
 
 **基于“大肥鱼”二次开发，在桌面上陪你工作的 DeepSeek Harness 伴侣。**
 
-[本仓库](https://github.com/linzhenhon/dafeilian) · [上游项目](https://github.com/QCYTSN/dsh-dafeiyu) · [English（上游）](README_EN.md) · [npm（上游包）](https://www.npmjs.com/package/dsh-dafeiyu) · [上游安装包](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest) · [更新日志](CHANGELOG.md)
+[安装插件](#安装) · [源码仓库](https://github.com/linzhenhon/dafeilian) · [上游项目](https://github.com/QCYTSN/dsh-dafeiyu) · [English（上游参考）](README_EN.md) · [更新日志](CHANGELOG.md)
 
-[![GitHub](https://img.shields.io/badge/GitHub-linzhenhon%2Fdafeilian-181717?logo=github)](https://github.com/linzhenhon/dafeilian) [![npm（上游）](https://img.shields.io/npm/v/dsh-dafeiyu?label=npm%20upstream)](https://www.npmjs.com/package/dsh-dafeiyu) [![上游 Release](https://img.shields.io/github/v/release/QCYTSN/dsh-dafeiyu?label=upstream%20release)](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)
+[![GitHub](https://img.shields.io/badge/GitHub-linzhenhon%2Fdafeilian-181717?logo=github)](https://github.com/linzhenhon/dafeilian) [![Last commit](https://img.shields.io/github/last-commit/linzhenhon/dafeilian)](https://github.com/linzhenhon/dafeilian/commits/main) [![License](https://img.shields.io/badge/code-MIT-blue)](LICENSE)
 
 </div>
 
 > [!IMPORTANT]
-> **大肥镰是 [DSH 大肥鱼](https://github.com/QCYTSN/dsh-dafeiyu) 的二次开发版本，并非上游官方发行版。** 感谢原作者与社区贡献者。本项目当前继续使用 `dsh-dafeiyu` 作为 npm 包名、插件 ID 和兼容标识，因此安装命令及部分程序界面仍会显示“大肥鱼”。代码与素材分别遵循仓库内现有许可证；二次分发前请阅读[素材与授权](#素材与授权)。
+> **大肥镰是 [DSH 大肥鱼](https://github.com/QCYTSN/dsh-dafeiyu) 的二次开发版本，并非上游官方发行版。** 感谢原作者与社区贡献者。本项目继续使用 `dsh-dafeiyu` 作为内部包名和插件 ID，以兼容现有配置，因此部分程序界面仍会显示“大肥鱼”；大肥镰的安装来源统一为本仓库。代码与素材分别遵循仓库内现有许可证，详见[素材与授权](#素材与授权)。
 
 大肥镰由 DSH 插件启动，随 DSH 一起退出。透明、无边框、始终置顶的原生窗口，让你在编辑器、浏览器或其他应用中也能看到 Agent 的工作状态。
 
-> **当前兼容基线：上游 0.1.23。** 大肥镰仓库目前尚未发布独立 npm 包或 GitHub Release；下文安装命令使用的 `dsh-dafeiyu@0.1.23` 和下载文件均来自上游。离线安装请从[上游最新版下载页](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)选择 **`dsh-dafeiyu-0.1.23.tgz`**；Windows、Linux 与 macOS 共用这一个包。GitHub 自动生成的 **Source code (zip / tar.gz)** 是源码，不是安装包。
+> **插件安装地址：[`https://github.com/linzhenhon/dafeilian.git`](https://github.com/linzhenhon/dafeilian.git)**。当前从仓库 `main` 分支安装，不使用上游 npm 包或上游 Release；升级时请继续使用同一仓库地址。
 
 <img src="assets/pet/custom/idle_pose.png" width="300" alt="大肥镰棕色昆虫宠物形象">
 
@@ -48,26 +48,34 @@
 
 使用命令行安装、升级或移除前，先**完全退出对应 DSH Host**；操作后重新启动。通过桌面应用内的插件管理操作时，按应用提示重启。
 
+安装源统一使用：
+
+```text
+https://github.com/linzhenhon/dafeilian.git
+```
+
+这是 Git 源码安装，需要能够访问 GitHub，并且系统能够运行 Git。DSH 会把地址交给 pnpm 安装，安装后的内部插件名仍是 `dsh-dafeiyu`。本仓库没有提交预编译 Helper，安装前请同时阅读[平台与运行环境](#平台与运行环境)。
+
 ### 浏览器 WebUI
 
 已全局安装 DSH：
 
 ```powershell
-dsh plugin --profile web add dsh-dafeiyu@0.1.23
+dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian.git"
 dsh web
 ```
 
 使用 `npx`，无需全局安装 DSH：
 
 ```powershell
-npx -y @deepseek-ai/dsh plugin --profile web add dsh-dafeiyu@0.1.23
+npx -y @deepseek-ai/dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian.git"
 npx -y @deepseek-ai/dsh web
 ```
 
 从 DeepSeek Harness 源码运行的用户，在 Harness 仓库中执行：
 
 ```powershell
-pnpm dsh plugin --profile web add dsh-dafeiyu@0.1.23
+pnpm dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian.git"
 pnpm dsh web
 ```
 
@@ -76,13 +84,11 @@ pnpm dsh web
 推荐直接在应用内安装：
 
 1. 打开官方 DeepSeek Harness 桌面应用，点击左侧 **插件**。
-2. 点击 **添加插件**，输入 `dsh-dafeiyu@0.1.23`，点击 **安装**。
+2. 点击 **添加插件**，输入 `https://github.com/linzhenhon/dafeilian.git`，点击 **安装**。
 3. 安装成功后点击 **立即启用**，桌面角色会出现在桌面上。
 4. 在插件列表打开 **dsh-dafeiyu**，调整角色、气泡和余额设置，修改实时生效。
 
-这套流程使用桌面应用自带的安装环境，用户无需安装 Node.js 或执行 npm 命令。若应用提示刷新或重启，按提示操作；失败时展开 **查看安装详情** 并保留日志。
-
-也可以只填 `dsh-dafeiyu` 获取安装源中的最新版。新版本刚发布时，默认安装源可能仍返回旧版；指定版本可以避免装错。安装后核对详情页中的版本号。
+这套流程使用桌面应用自带的安装环境，用户无需单独安装 Node.js；Git 源码安装仍要求系统能够访问 GitHub 和运行 Git。若应用提示刷新或重启，按提示操作；失败时展开 **查看安装详情** 并保留日志。不要只填 `dsh-dafeiyu`，那会安装同名上游 npm 包，而不是大肥镰。
 
 使用命令安装时：
 
@@ -91,26 +97,29 @@ pnpm dsh web
 3. 执行：
 
    ```powershell
-   dsh plugin --profile desktop add dsh-dafeiyu@0.1.23
+   dsh plugin --profile desktop add "https://github.com/linzhenhon/dafeilian.git"
    ```
 
 4. 重新打开桌面应用，在左侧插件 → dsh-dafeiyu 调整角色。
 
 **这里的 `dsh` 必须来自桌面应用。** 独立安装的 npm / `npx @deepseek-ai/dsh` CLI 不能修改官方桌面端的 profile。请参考 [DSH 官方桌面端说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/apps/desktop/README.zh.md#bundled-command-runtime)。
 
-### 使用 Release 安装包
+### 从本地克隆安装
 
-打开[上游最新版下载页](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)，在 **Assets** 中下载 **`dsh-dafeiyu-0.1.23.tgz`**，用对应客户端的命令安装；**无需解压**。不要选择历史版本，也不要下载 **Source code** 作为安装包：
+网络环境不适合让 DSH 直接拉取仓库时，可以先克隆源码，再从仓库根目录安装：
 
 ```powershell
-# WebUI；文件路径替换为实际下载路径
-npx -y @deepseek-ai/dsh plugin --profile web add "C:\Downloads\dsh-dafeiyu-0.1.23.tgz"
+git clone https://github.com/linzhenhon/dafeilian.git
+cd dafeilian
+
+# WebUI
+npx -y @deepseek-ai/dsh plugin --profile web add .
 
 # 官方桌面端；必须使用应用自带的 dsh
-dsh plugin --profile desktop add "C:\Downloads\dsh-dafeiyu-0.1.23.tgz"
+dsh plugin --profile desktop add .
 ```
 
-桌面端也可在 **添加插件** 的输入框填写 `.tgz` 的完整路径。
+当前仓库没有独立 `.tgz` Release 安装包。GitHub 自动生成的 **Source code (zip / tar.gz)** 只是源码归档，不等同于经过项目工作流构建的插件安装包。
 
 ## 余额显示
 
@@ -158,14 +167,19 @@ dsh plugin --profile desktop add "C:\Downloads\dsh-dafeiyu-0.1.23.tgz"
 
 ## 平台与运行环境
 
-| 平台 | 原生角色 |
+| 平台 | 从本 Git 仓库安装时的原生角色 |
 | --- | --- |
-| Windows 10 / 11 x64 | 随包提供 Helper；WSL2 可通过 Windows 互操作启动 |
-| Linux x64 | 随包提供 Qt Helper，需要图形桌面；glibc 2.35+，Ubuntu 24.04 有验收记录 |
-| Linux arm64 | 包里**没有**随架构 Helper，会自动回退到 Python Helper，需要 `python3` 与 `PySide6>=6.7,<7`；缺失时会写明确日志 |
-| macOS 12+ | 原生 Swift / AppKit Helper，Universal 构建；实验性支持 |
+| Windows 10 / 11 x64 | 使用 Python Helper；WSL2 可通过 Windows 互操作启动 |
+| Linux x64 / arm64 | 使用 Python Helper，需要图形桌面 |
+| macOS 12+ | 可自行构建 Swift / AppKit Helper；未构建时回退 Python Helper，实验性支持 |
 
-标准安装包已包含 Helper，**不需要自己安装 Python 或运行 Helper**。从源码使用时需自行构建。macOS 小字号与拖动边缘已修复并通过 CI，仍需真实机器验证视觉效果与多屏操作。
+本仓库当前是 Git 源码安装，**不包含 `runtime/bin/` 中的预编译 Helper**。Windows 和 Linux 用户需要安装 Python 3，并为 DSH 实际调用的 Python 安装依赖：
+
+```powershell
+python -m pip install "PySide6>=6.7,<7"
+```
+
+若 DSH 没有找到正确的 Python，可在启动 Host 前设置 `DSH_DAFEIYU_PYTHON=<python 可执行文件路径>`。也可以从源码自行构建平台 Helper。macOS Helper 需要 Xcode Command Line Tools；当前仍需真实机器验证视觉效果与多屏操作。
 
 原生角色显示在 **Host 所在的桌面**：远程服务器、无图形环境和浏览器客户端不在同一台机器时，请先确认 Host 的运行位置。页面内角色可在浏览器中显示。
 
@@ -177,7 +191,14 @@ WebUI 用户完全退出 DSH 后执行：
 npx -y @deepseek-ai/dsh plugin --profile web update dsh-dafeiyu
 ```
 
-官方桌面端 **0.2.0-rc.2 暂不支持应用内自动更新**。在插件页面卸载 `dsh-dafeiyu`，再添加 `dsh-dafeiyu@0.1.23` 并立即启用；也可以完全退出应用后使用自带的命令：
+如果更新后仍停留在旧提交，先移除再按仓库地址重新安装：
+
+```powershell
+npx -y @deepseek-ai/dsh plugin --profile web remove dsh-dafeiyu
+npx -y @deepseek-ai/dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian.git"
+```
+
+官方桌面端暂不支持应用内自动更新时，在插件页面卸载 `dsh-dafeiyu`，再输入 `https://github.com/linzhenhon/dafeilian.git` 安装并立即启用；也可以完全退出应用后使用自带的命令：
 
 ```powershell
 dsh plugin --profile desktop update dsh-dafeiyu
@@ -185,21 +206,24 @@ dsh plugin --profile desktop update dsh-dafeiyu
 
 然后重新启动对应客户端。回退、移除、DSH 迁移后恢复大小，以及 Windows `EPERM` 的处理见 [更新与回退](docs/UPDATING.md)。
 
-- DSH 0.2 设置页变化：安装上游当前稳定版，通过左侧插件 → dsh-dafeiyu 打开设置；较旧 Host 保留原设置入口。
+- DSH 0.2 设置页变化：从本仓库安装当前 `main`，通过左侧插件 → dsh-dafeiyu 打开设置；较旧 Host 保留原设置入口。
 - 桌面端安装只显示 `[exit 1]`：该信息不足以确定原因，请附上插件安装详细日志（如 `hub.log`）、DSH 版本、系统和安装方式。
+- Git 安装失败：确认 Git 已加入 `PATH`、能够访问 GitHub，并使用完整地址 `https://github.com/linzhenhon/dafeilian.git`。
 - 余额查询失败：检查 DSH 中的凭据及所用网关是否支持余额接口。
-- 角色不出现：检查 profile、插件是否启用，以及 Host 是否有可用图形桌面。Helper 的启动原因现在会写入日志：
+- 角色不出现：检查 profile、插件是否启用、Host 是否有可用图形桌面，以及 Python 是否已安装 `PySide6>=6.7,<7`。Helper 的启动原因会写入日志：
   - Windows：`%LOCALAPPDATA%\dsh-dafeiyu\logs\helper.log`
   - macOS：`~/Library/Logs/dsh-dafeiyu/helper.log`
   - Linux：`${XDG_STATE_HOME:-~/.local/state}/dsh-dafeiyu/helper.log`
 
-  首次启动需要把约 100 MB 的 Qt 运行库解压到临时目录，杀毒软件实时扫描可能让冷启动明显变慢；首次就绪等待上限已放宽到 180 秒（之后 60 秒）。解压临时目录在 Windows 位于 `%LOCALAPPDATA%\dsh-dafeiyu\tmp`、Linux 位于 `~/.cache/dsh-dafeiyu/tmp`，其中超过一天的陈旧 `_MEI*` 目录会在下次启动时清理。需要更详细输出时可用 `DSH_DAFEIYU_LOG_FILE=<路径>` 改日志位置，或设为 `off` 关闭；报告问题时可以附上该日志（只含本地路径与启动错误，不含凭据）。
+  Git 源码安装使用 Python Helper，不会执行预编译 Helper 的首次解压流程。需要更详细输出时可用 `DSH_DAFEIYU_LOG_FILE=<路径>` 改日志位置，或设为 `off` 关闭；报告问题时可以附上该日志（只含本地路径与启动错误，不含凭据）。
 
-[GitHub issue / PR 处理清单](https://github.com/QCYTSN/dsh-dafeiyu/blob/main/docs/GITHUB_TRIAGE.md)记录已处理和仍需补充证据的问题；[验收记录](https://github.com/QCYTSN/dsh-dafeiyu/blob/main/docs/ACCEPTANCE.md)保留实际测试结果。这些记录中的旧版本号用于追溯，不是安装建议。
+[GitHub issue / PR 处理清单](docs/GITHUB_TRIAGE.md)记录历史上游问题和处理依据；[验收记录](docs/ACCEPTANCE.md)保留已有测试结果。这些记录中的旧版本号和上游链接仅用于追溯，不是大肥镰的安装地址。
 
 ## 源码开发
 
 ```powershell
+git clone https://github.com/linzhenhon/dafeilian.git
+cd dafeilian
 pnpm install --frozen-lockfile
 npm test
 npm run test:python
@@ -211,7 +235,7 @@ npm run test:helper:packaged
 
 CI 还会隔离安装 DSH 0.2.0-rc.2 并运行 `scripts/test-dsh-settings.mjs`，验证新设置接口。该检查不读取用户 profile 或凭据，文件写入使用测试适配器。
 
-上游项目通过 GitHub Actions 构建三个平台的 Helper 并发布；维护者操作见 [发布说明](docs/RELEASING.md)。大肥镰发布独立版本前，应先完成自己的包名、版本、仓库地址、许可证和 Release 工作流配置，不能把上游 npm 包或 Release 误标为本项目发行版。
+本仓库保留 GitHub Actions 测试与发布工作流；当前用户安装入口仍是 `https://github.com/linzhenhon/dafeilian.git`。维护者操作见 [发布说明](docs/RELEASING.md)。正式发布独立 npm 包或 `.tgz` Release 前，应先完成包名、版本、许可证和发布权限配置；禁止在本地运行 `npm publish`。
 
 ## 素材与授权
 

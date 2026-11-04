@@ -2,7 +2,7 @@
 
 先确认插件安装在 `web` 还是官方桌面端的 `desktop` profile。使用命令操作前完全退出对应 Host，包括托盘或后台仍在运行的进程；操作完成后重新启动。使用应用内插件管理时，按应用提示重启。
 
-**当前稳定版为 0.1.23。** 推荐安装 `dsh-dafeiyu@0.1.23`，下载入口固定为[最新版发布页](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)。当前版本修复 Linux arm64 / 无随架构 Helper 时 Python 回退未给出 PySide6 安装指引的问题；继续包含 0.1.22 的审批提示音与场景开关、0.1.21 的跨显示器拖动与菜单设置兜底、0.1.20 的透明区域点击穿透，以及 0.1.19 的 Helper 冷启动诊断、临时目录清理与 Linux arm64 回退。
+大肥镰统一从 `https://github.com/linzhenhon/dafeilian.git` 安装和更新。内部插件名仍是 `dsh-dafeiyu`；不要只按包名安装，否则会取得同名上游 npm 包。
 
 ## WebUI
 
@@ -20,11 +20,16 @@ npx -y @deepseek-ai/dsh plugin --profile web update dsh-dafeiyu
 
 从 DeepSeek Harness 源码启动的用户，在 Harness 仓库中执行 `pnpm dsh plugin --profile web update dsh-dafeiyu`。
 
+如果 `update` 没有取得仓库最新提交，移除后按 Git 地址重新安装：
+
+```powershell
+npx -y @deepseek-ai/dsh plugin --profile web remove dsh-dafeiyu
+npx -y @deepseek-ai/dsh plugin --profile web add "https://github.com/linzhenhon/dafeilian.git"
+```
+
 ## 官方桌面端
 
-官方桌面端 0.2.0-rc.2 的安装页面明确说明暂不支持自动更新。打开左侧 **插件**，卸载 **dsh-dafeiyu**，再通过 **添加插件** 安装 `dsh-dafeiyu@0.1.23`，并点击 **立即启用**。若应用提示刷新或重启，按提示操作。
-
-只填包名会选择安装源中的最新版。新版本刚发布时，默认安装源可能仍返回旧版；使用本页的明确版本号，并在安装后核对详情页。以后升级时以[最新版发布页](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)为准。
+官方桌面端暂不支持应用内自动更新时，打开左侧 **插件**，卸载 **dsh-dafeiyu**，再通过 **添加插件** 输入 `https://github.com/linzhenhon/dafeilian.git`，安装后点击 **立即启用**。若应用提示刷新或重启，按提示操作。
 
 命令方式必须使用**桌面应用自带的 CLI**。先启动一次应用初始化 profile，完全退出，再执行：
 
@@ -36,23 +41,26 @@ dsh plugin --profile desktop update dsh-dafeiyu
 
 第三方桌面壳可能仍连接 `web` profile，需按实际 Host 判断。
 
-## 安装当前离线包
+## 从本地克隆重新安装
 
-从[最新版发布页](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)的 **Assets** 下载 **`dsh-dafeiyu-0.1.23.tgz`**。这是 Windows、Linux 和 macOS 共用的安装包；**Source code (zip / tar.gz)** 仅供源码开发。安装包不用解压，用同一 profile 的 `add` 命令替换安装：
+当前仓库没有独立 `.tgz` Release。可以先克隆仓库，再从仓库根目录安装：
 
 ```powershell
+git clone https://github.com/linzhenhon/dafeilian.git
+cd dafeilian
+
 # WebUI
-npx -y @deepseek-ai/dsh plugin --profile web add "C:\Downloads\dsh-dafeiyu-0.1.23.tgz"
+npx -y @deepseek-ai/dsh plugin --profile web add .
 
 # 官方桌面端，自带 CLI
-dsh plugin --profile desktop add "C:\Downloads\dsh-dafeiyu-0.1.23.tgz"
+dsh plugin --profile desktop add .
 ```
 
-路径替换为实际下载位置。桌面应用的 **添加插件** 也接受安装包的完整路径。
+GitHub 自动生成的 **Source code (zip / tar.gz)** 是源码归档，不是经过项目工作流构建的安装包。
 
 ## 有意回退（仅排错）
 
-历史发布页保留版本记录，旧安装附件已撤下，避免被当作最新版下载。确需排错回退时，先选定与当前 DSH 兼容的已知版本，再用对应客户端的 `add` 命令安装 npm 上的明确版本。不要使用历史测试记录中的版本号作为一般安装建议；升级 DSH 后回退到旧插件，可能重新遇到设置接口兼容问题。
+确需排错回退时，可以安装本仓库的明确提交：`git+https://github.com/linzhenhon/dafeilian.git#<commit>`，其中 `<commit>` 替换为完整提交哈希。不要用历史上游版本号作为大肥镰的一般安装建议；升级 DSH 后回退到旧提交，可能重新遇到设置接口兼容问题。
 
 ## 移除
 
@@ -85,21 +93,19 @@ dsh plugin --profile desktop remove dsh-dafeiyu
 
 ## Windows `EPERM` / `EBUSY`（#66）
 
-当前稳定版已经通过在本地缓存运行 Windows Helper，减少安装目录中可执行文件的锁占用。更新前仍需完全退出相关 Host；如果同时运行 WebUI 和 Desktop，分别确认其后台进程已退出。
+更新前必须完全退出相关 Host；如果同时运行 WebUI 和 Desktop，分别确认其后台进程已退出。Git 源码安装没有预编译 Helper，但 pnpm 仍可能因插件目录被 Host 占用而报告文件锁。
 
 如果再次失败，保留包含**实际被锁定路径**的完整安装日志。只看到 `[exit 1]` 不足以区分文件锁、包管理器、网络和兼容性检查问题。不要通过删除整个 DSH profile 排错，以免丢失设置和会话。
 
 ## 角色不出现 / Helper 启动失败（#88、#91）
 
-从 0.1.23 起，Helper 的启动过程会写入诊断日志，超时、`exited before ready`、`spawn error` 和最终放弃都会留下原因：
+Helper 的启动过程会写入诊断日志，超时、`exited before ready`、`spawn error` 和最终放弃都会留下原因：
 
 - Windows：`%LOCALAPPDATA%\dsh-dafeiyu\logs\helper.log`
 - macOS：`~/Library/Logs/dsh-dafeiyu/helper.log`
 - Linux：`${XDG_STATE_HOME:-~/.local/state}/dsh-dafeiyu/helper.log`
 
-首次启动要把约 100 MB 的 Qt 运行库解压到临时目录，杀毒软件实时扫描可能让冷启动超过一分钟；首次就绪等待上限已放宽到 180 秒（重试 90 秒，已就绪过的重启 60 秒）。解压目录在 Windows 为 `%LOCALAPPDATA%\dsh-dafeiyu\tmp`、Linux 为 `~/.cache/dsh-dafeiyu/tmp`，其中超过一天的 `_MEI*` 残留会在下次启动时清理。旧版本遗留在系统临时目录（如 `%TEMP%\_MEI*`）的目录不会自动删除，确认没有 Helper 运行时可以手动清理。
-
-Linux arm64 的 npm 包内没有对应的随架构 Helper，会回退到 `python3 runtime/helper.py`；需要给运行 Host 的 Python 安装 `PySide6>=6.7,<7`（`python3 -m pip install --user "PySide6>=6.7,<7"`）。0.1.23 起，日志和 console 会明确写出 arch 与缺失的 PySide6 安装命令，而不是静默重试后放弃。注意 npm 包仍不带 `linux-arm64` 原生 Helper。
+本 Git 仓库不包含 `runtime/bin/` 中的预编译 Helper，Windows、Linux 和未自行构建 Swift Helper 的 macOS 会回退到 Python。需要给运行 Host 的 Python 安装 `PySide6>=6.7,<7`（`python -m pip install "PySide6>=6.7,<7"`）；必要时设置 `DSH_DAFEIYU_PYTHON=<python 可执行文件路径>`。日志和 console 会写出架构与缺失依赖，而不是静默重试后放弃。
 
 需要改变日志位置时设置 `DSH_DAFEIYU_LOG_FILE=<路径>`，设为 `off` 可关闭。日志只包含本地路径与 Helper 的启动/错误信息，不包含凭据。
 
@@ -115,4 +121,4 @@ Linux arm64 的 npm 包内没有对应的随架构 Helper，会回退到 `python
 
 ## 更新通知
 
-在 GitHub 仓库选择 **Watch → Custom → Releases**，或订阅 [Release feed](https://github.com/QCYTSN/dsh-dafeiyu/releases.atom)。Star 只收藏项目。
+在[大肥镰 GitHub 仓库](https://github.com/linzhenhon/dafeilian)选择 **Watch** 接收更新通知。Star 只收藏项目。

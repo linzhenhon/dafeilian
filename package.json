@@ -1,8 +1,8 @@
 {
   "name": "dsh-dafeiyu",
   "version": "0.1.23",
-  "description": "A desktop-native BigFish companion driven by DeepSeek Harness session events.",
-  "author": "QCYTSN",
+  "description": "Dafeilian, a desktop-native DeepSeek Harness companion derived from DSH BigFish.",
+  "author": "linzhenhon",
   "type": "module",
   "main": "src/index.js",
   "exports": {
@@ -89,16 +89,17 @@
     "deepseek-harness",
     "dsh-plugin",
     "desktop-pet",
-    "agent-companion"
+    "agent-companion",
+    "dafeilian"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/QCYTSN/dsh-dafeiyu.git"
+    "url": "git+https://github.com/linzhenhon/dafeilian.git"
   },
   "bugs": {
-    "url": "https://github.com/QCYTSN/dsh-dafeiyu/issues"
+    "url": "https://github.com/linzhenhon/dafeilian/issues"
   },
-  "homepage": "https://github.com/QCYTSN/dsh-dafeiyu#readme",
+  "homepage": "https://github.com/linzhenhon/dafeilian#readme",
   "publishConfig": {
     "access": "public"
   },
