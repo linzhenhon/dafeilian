@@ -47,8 +47,7 @@
     "README_EN.md",
     "CHANGELOG.md",
     "ASSET_LICENSE.md",
-    "LICENSE",
-    "scripts/install-python-deps.mjs"
+    "LICENSE"
   ],
   "engines": {
     "node": ">=22.19"
@@ -73,8 +72,7 @@
     "build:helper:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-helper.ps1",
     "build:helper:linux": "bash scripts/build-helper.sh",
     "build:helper:darwin": "bash native/macos/build.sh",
-    "test:helper:packaged": "node scripts/test-packaged-helper.mjs",
-    "postinstall": "node scripts/install-python-deps.mjs"
+    "test:helper:packaged": "node scripts/test-packaged-helper.mjs"
   },
   "dsh": {
     "client": {

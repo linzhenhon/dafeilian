@@ -15,7 +15,7 @@
 
 大肥镰由 DSH 插件启动，随 DSH 一起退出。透明、无边框、始终置顶的原生窗口，让你在编辑器、浏览器或其他应用中也能看到 Agent 的工作状态。
 
-> **推荐安装：[v0.0.1 预编译安装包](https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz)。** 可直接把该 `.tgz` URL 粘贴到插件管理器。从 Gitee 源码安装时已附带 Windows x64 预编译 Helper，Windows 用户无需额外下载 Python 依赖。其他没有预编译 Helper 的平台会自动安装 Python 依赖。
+> **推荐安装：[v0.0.1 预编译安装包](https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz)。** 可直接把该 `.tgz` URL 粘贴到插件管理器。从 Gitee 源码安装时已附带 Windows x64 预编译 Helper，Windows 用户无需额外下载 Python 依赖或授权安装脚本。
 
 <img src="assets/pet/custom/idle_pose.png" width="300" alt="大肥镰棕色昆虫宠物形象">
 
@@ -54,7 +54,7 @@
 https://github.com/linzhenhon/dafeilian/releases/download/v0.0.1/dsh-dafeilian-0.0.1.tgz
 ```
 
-也可以直接安装 Release 资产 `dsh-dafeilian-0.0.1.tgz`。该安装包由 GitHub Actions 在各原生平台构建并验证，正常使用不需要安装 Python、PySide6 或 Git。GitHub 自动生成的 Source code 压缩包不是插件安装包。直接从 Git / Gitee 安装源码时，安装钩子会自动安装 Python Helper 依赖。
+也可以直接安装 Release 资产 `dsh-dafeilian-0.0.1.tgz`。该安装包由 GitHub Actions 在各原生平台构建并验证，正常使用不需要安装 Python、PySide6 或 Git。GitHub 自动生成的 Source code 压缩包不是插件安装包。从 Git / Gitee 源码安装时，Windows x64 使用仓库附带的 Helper；其他平台需按上文手动安装依赖。
 
 ### 浏览器 WebUI
 
@@ -106,7 +106,7 @@ pnpm dsh web
 
 ### 从本地克隆安装
 
-Gitee 源码仓库包含 Windows x64 预编译 Helper；此平台安装无需 Python 或额外依赖下载。其他没有预编译 Helper 的平台会自动尝试通过 Python 3 和 pip 安装 `requirements.txt`，需要 Python 3、pip 和网络连接。
+Gitee 源码仓库包含 Windows x64 预编译 Helper；此平台安装无需 Python 或额外依赖下载。其他没有预编译 Helper 的平台需预先安装 Python 3 和 `requirements.txt` 中的依赖。
 
 ```powershell
 git clone https://gitee.com/yummy-lin/dsh-dafeilian.git
@@ -173,7 +173,7 @@ dsh plugin --profile desktop add .
 | Linux x64 | 内置预编译 Helper，需要图形桌面 |
 | macOS 12+ | 内置通用 arm64 / x86_64 Swift / AppKit Helper |
 
-Gitee 源码包含 Windows x64 预编译 Helper，Windows x64 用户无需安装 Python、PySide6 或从外部下载运行依赖。Linux arm64 和其他没有预编译 Helper 的环境会回退 Python；安装钩子会通过 Python 3 和 pip 安装 `requirements.txt`。如果包管理器禁用了安装脚本，请手动运行：
+Gitee 源码包含 Windows x64 预编译 Helper，Windows x64 用户无需安装 Python、PySide6 或从外部下载运行依赖。Linux arm64 和其他没有预编译 Helper 的环境会回退到 Python Helper；请在安装插件前手动安装 Python 3 和 `requirements.txt` 中的依赖：
 
 ```powershell
 python -m pip install -r requirements.txt
