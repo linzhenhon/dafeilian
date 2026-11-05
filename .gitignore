@@ -10,7 +10,10 @@ assets/pet/custom-original-2d/
 assets/pet/custom-3d-source/
 legacy/dafeiyu/
 docs/images/
-runtime/bin/
+runtime/bin/*
+!runtime/bin/win32-x64/
+runtime/bin/win32-x64/*
+!runtime/bin/win32-x64/dsh-dafeiyu-helper.exe
 *.tgz
 *.log
 __pycache__/
