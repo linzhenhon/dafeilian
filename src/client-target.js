@@ -11,3 +11,4 @@ export function resolveClientTarget(config = {}, runtime = process) {
     label: desktop ? '打开 DSH 桌面端' : '打开 DSH WebUI',
   }
 }
+

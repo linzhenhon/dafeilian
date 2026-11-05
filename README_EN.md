@@ -206,3 +206,5 @@ The public checkout defaults to the repository owner's approved brown insect mas
 Code and character assets have different licenses. Read the bilingual [ASSET_LICENSE.md](ASSET_LICENSE.md), the [upstream code license](assets/dsh-pet-LICENSE.txt), and [LICENSE](LICENSE). Legacy art and community drag images remain local under `legacy/`, excluded from public Git commits and npm packages.
 
 Thanks to community contributors for animation, macOS, WSL, and compatibility improvements. Subscribe through **Watch → Custom → Releases** for updates; starring only bookmarks the project.
+
+
