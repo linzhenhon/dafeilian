@@ -56,6 +56,7 @@ const snapshotMessageKinds = new Set([
   CompanionMessageKind.TASKS,
   CompanionMessageKind.CONFIG,
   CompanionMessageKind.BALANCE,
+  CompanionMessageKind.MARKET,
 ])
 const coalescibleMessageKinds = new Set([
   ...snapshotMessageKinds,
@@ -638,6 +639,7 @@ export class HelperProcess {
     if (message.kind === CompanionMessageKind.TASKS) this.snapshot.set('tasks', encodeMessage(message))
     if (message.kind === CompanionMessageKind.CONFIG) this.snapshot.set('config', encodeMessage(message))
     if (message.kind === CompanionMessageKind.BALANCE) this.snapshot.set('balance', encodeMessage(message))
+    if (message.kind === CompanionMessageKind.MARKET) this.snapshot.set('market', encodeMessage(message))
   }
 
   #flushSnapshot() {

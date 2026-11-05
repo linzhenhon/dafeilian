@@ -16,6 +16,7 @@ import { resolveClientTarget } from './client-target.js'
 import { isLocalRequest, jsonResponse } from './local-http.js'
 import { TASK_TARGET_ENDPOINT, createTaskTargetHandler, submitDesktopTask } from './task-input.js'
 import { BALANCE_ENDPOINT, createBalanceQuery, createBalanceMonitor, createBalanceHandler, balanceProviderNamespace } from './balance.js'
+import { createMarketWatchMonitor, normalizeMarketInterval, normalizeMarketSymbol, normalizeMarketSymbols } from './market-watch.js'
 import {
   CompanionMessageKind,
   CompanionState,
@@ -84,6 +85,15 @@ export const Config = Schema.object({
   clientTarget: Schema.union(['auto', 'web', 'desktop']).default('auto').description('打开 DSH 的目标客户端（自动识别 WebUI／桌面端）'),
   balanceEnabled: Schema.boolean().default(true).description('在状态气泡和设置页显示 DeepSeek 余额'),
   balanceSource: Schema.union(['auto', 'api-key', 'account']).default('auto').description('余额来源：自动优先 API Key，也可选择已登录账户'),
+  marketWatchEnabled: Schema.boolean().default(false).description('启用炒币盯盘动作与实时行情卡片'),
+  marketWatchSymbols: Schema.string().default('BTCUSDT,ETHUSDT,SOLUSDT,BNBUSDT,DOGEUSDT').description('盯盘币种，最多五个 USDT 现货交易对，逗号分隔'),
+  marketWatchSymbol: Schema.string().default('BTCUSDT').description('桌宠行情卡片当前展示的币种'),
+  marketWatchInterval: Schema.union([
+    Schema.const('1m').description('1 分钟'),
+    Schema.const('15m').description('15 分钟'),
+    Schema.const('1h').description('1 小时'),
+    Schema.const('4h').description('4 小时'),
+  ]).default('15m').description('盯盘 K 线周期'),
 }).description('由 DeepSeek Harness 状态驱动的桌面大肥鱼伴侣')
 
 // Mark fields, rather than the root object: current DSH passes each volatile
@@ -112,6 +122,10 @@ const defaults = Object.freeze({
   clientTarget: 'auto',
   balanceEnabled: true,
   balanceSource: 'auto',
+  marketWatchEnabled: false,
+  marketWatchSymbols: 'BTCUSDT,ETHUSDT,SOLUSDT,BNBUSDT,DOGEUSDT',
+  marketWatchSymbol: 'BTCUSDT',
+  marketWatchInterval: '15m',
 })
 
 const SOUND_STATES = new Set(['SUCCESS', 'ERROR', 'APPROVAL'])
@@ -154,6 +168,10 @@ function publicConfig(config = {}) {
     clientTarget: config.clientTarget ?? defaults.clientTarget,
     balanceEnabled: config.balanceEnabled !== false,
     balanceSource: config.balanceSource ?? defaults.balanceSource,
+    marketWatchEnabled: config.marketWatchEnabled === true,
+    marketWatchSymbols: normalizeMarketSymbols(config.marketWatchSymbols).join(','),
+    marketWatchSymbol: normalizeMarketSymbol(config.marketWatchSymbol, normalizeMarketSymbols(config.marketWatchSymbols)),
+    marketWatchInterval: normalizeMarketInterval(config.marketWatchInterval),
   }
 }
 
@@ -466,7 +484,28 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
     },
   })
 
+  const marketWatch = createMarketWatchMonitor({
+    logger,
+    onUpdate(snapshot) {
+      if (bridge) bridge.send(createMessage(CompanionMessageKind.MARKET, snapshot))
+    },
+  })
+  let marketWatchActive = false
+  const configureMarketWatch = (resolved) => {
+    const enabled = resolved.enabled !== false && resolved.marketWatchEnabled === true
+    if (!enabled && !marketWatchActive) return
+    marketWatchActive = enabled
+    marketWatch.configure({
+      enabled,
+      symbols: resolved.marketWatchSymbols,
+      selectedSymbol: resolved.marketWatchSymbol,
+      interval: resolved.marketWatchInterval,
+    })
+  }
+
   const stopRuntime = (reason = 'settings-change') => {
+    if (marketWatchActive) marketWatch.stop()
+    marketWatchActive = false
     bridge?.stop(reason)
     bridge = undefined
     reducer = undefined
@@ -543,6 +582,10 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
       bubbleStates: Array.isArray(next.bubbleStates) ? next.bubbleStates : defaults.bubbleStates,
       openUrl: resolveClientTarget({ ...config, ...next }).url,
       openLabel: resolveClientTarget({ ...config, ...next }).label,
+      marketWatchEnabled: next.marketWatchEnabled === true,
+      marketWatchSymbols: normalizeMarketSymbols(next.marketWatchSymbols),
+      marketWatchSymbol: normalizeMarketSymbol(next.marketWatchSymbol, normalizeMarketSymbols(next.marketWatchSymbols)),
+      marketWatchInterval: normalizeMarketInterval(next.marketWatchInterval),
     }))
   }
 
@@ -571,6 +614,9 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
         if (typeof report.reducedMotion === 'boolean') patch.reducedMotion = report.reducedMotion
         if (typeof report.soundEnabled === 'boolean') patch.soundEnabled = report.soundEnabled
         if (SOUND_PACKS.has(report.soundPack)) patch.soundPack = report.soundPack
+        if (typeof report.marketWatchEnabled === 'boolean') patch.marketWatchEnabled = report.marketWatchEnabled
+        if (typeof report.marketWatchSymbol === 'string') patch.marketWatchSymbol = report.marketWatchSymbol
+        if (['1m', '15m', '1h', '4h'].includes(report.marketWatchInterval)) patch.marketWatchInterval = report.marketWatchInterval
         if (Object.keys(patch).length === 0) return
         // Capture the host values before the write: the fallback only applies
         // while the host still holds the same baseline.
@@ -698,6 +744,7 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
       detail: 'DSH · 等待下一次任务',
     }))
     if (balance.get().status !== 'disabled') bridge.send(createMessage(CompanionMessageKind.BALANCE, balance.get()))
+    configureMarketWatch(resolved)
     logger.info?.('dsh-dafeilian companion bridge started')
   }
 
@@ -756,6 +803,7 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
       else dshVoice.dispose()
       if (next.voicePreload === true && next.enabled !== false && (next.voiceEngine === 'dsh' || !voice.child)) preloadVoice()
       balance.configure(next.enabled !== false && next.balanceEnabled, next.balanceSource)
+      configureMarketWatch(next)
       if (next.enabled === false) {
         if (restartTimer) {
           clearTimeout(restartTimer)
@@ -848,6 +896,7 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
     unwatch()
     settings.dispose?.()
     balance.stop()
+    marketWatch.dispose()
     stopRuntime('dsh-host-stop')
   })
 }

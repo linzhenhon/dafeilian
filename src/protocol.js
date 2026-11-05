@@ -20,6 +20,7 @@ export const CompanionMessageKind = Object.freeze({
   TASKS: 'tasks',
   CONFIG: 'config',
   BALANCE: 'balance',
+  MARKET: 'market',
   SETTINGS: 'settings',
   SUBMIT_TASK: 'submit_task',
   TASK_RESULT: 'task_result',

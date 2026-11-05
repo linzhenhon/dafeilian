@@ -87,6 +87,17 @@ try {
   })}\n`)
   child.stdin.write(`${JSON.stringify({
     protocolVersion: 1,
+    kind: 'market',
+    timestamp: Date.now(),
+    enabled: true,
+    status: 'connected',
+    symbols: ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'DOGEUSDT'],
+    selectedSymbol: 'BTCUSDT',
+    interval: '15m',
+    quotes: [{ symbol: 'BTCUSDT', price: 68432.125, changePercent: 1.28, interval: '15m', updatedAt: Date.now() }],
+  })}\n`)
+  child.stdin.write(`${JSON.stringify({
+    protocolVersion: 1,
     kind: 'state',
     timestamp: Date.now(),
     state: 'WORKING',

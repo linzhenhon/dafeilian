@@ -543,6 +543,13 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             self.webui_url = os.environ.get("DSH_DAFEIYU_WEBUI_URL", "http://127.0.0.1:3080/")
             self.open_label = os.environ.get("DSH_DAFEIYU_OPEN_LABEL", "打开 DSH")
             self.balance_summary = ""
+            self.market_watch_enabled = False
+            self.market_watch_symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "DOGEUSDT"]
+            self.market_watch_symbol = "BTCUSDT"
+            self.market_watch_interval = "15m"
+            self.market_watch_status = "disabled"
+            self.market_watch_quotes: dict[str, dict[str, Any]] = {}
+            self.market_watch_history: deque[float] = deque(maxlen=40)
             self.drag_origin: QPoint | None = None
             self.drag_direction_anchor: QPoint | None = None
             self.drag_direction = "down"
@@ -693,6 +700,43 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             elif kind == "balance":
                 self.balance_summary = str(message.get("summary", ""))[:200]
                 self._sync_bubble_size()
+            elif kind == "market":
+                was_enabled = self.market_watch_enabled
+                self.market_watch_enabled = message.get("enabled") is True
+                raw_symbols = message.get("symbols")
+                if isinstance(raw_symbols, list):
+                    symbols = list(dict.fromkeys(
+                        str(item).strip().upper() for item in raw_symbols
+                        if isinstance(item, str) and 5 <= len(item) <= 20 and item.strip().isalnum()
+                    ))[:5]
+                    if symbols:
+                        self.market_watch_symbols = symbols
+                raw_interval = message.get("interval")
+                if raw_interval in {"1m", "15m", "1h", "4h"}:
+                    if raw_interval != self.market_watch_interval:
+                        self.market_watch_history.clear()
+                    self.market_watch_interval = raw_interval
+                selected = message.get("selectedSymbol")
+                if isinstance(selected, str) and selected in self.market_watch_symbols:
+                    if selected != self.market_watch_symbol:
+                        self.market_watch_history.clear()
+                    self.market_watch_symbol = selected
+                self.market_watch_status = str(message.get("status", "connecting"))
+                raw_quotes = message.get("quotes")
+                if isinstance(raw_quotes, list):
+                    self.market_watch_quotes = {
+                        str(item.get("symbol")): item for item in raw_quotes
+                        if isinstance(item, dict) and isinstance(item.get("symbol"), str)
+                    }
+                quote = self.market_watch_quotes.get(self.market_watch_symbol)
+                price = quote.get("price") if isinstance(quote, dict) else None
+                if isinstance(price, (int, float)) and not isinstance(price, bool) and price > 0:
+                    if not self.market_watch_history or self.market_watch_history[-1] != float(price):
+                        self.market_watch_history.append(float(price))
+                if was_enabled != self.market_watch_enabled:
+                    self._sync_bubble_size()
+                else:
+                    self.update()
             elif kind == "alert":
                 if message.get("alert") == "APPROVAL":
                     self._notify_alert("APPROVAL")
@@ -805,6 +849,27 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             bubble_states = message.get("bubbleStates")
             if isinstance(bubble_states, list):
                 self.bubble_states = [str(state) for state in bubble_states if isinstance(state, str)]
+            market_watch_enabled = message.get("marketWatchEnabled")
+            if isinstance(market_watch_enabled, bool):
+                self.market_watch_enabled = market_watch_enabled
+            raw_symbols = message.get("marketWatchSymbols")
+            if isinstance(raw_symbols, list):
+                symbols = list(dict.fromkeys(
+                    str(item).strip().upper() for item in raw_symbols
+                    if isinstance(item, str) and 5 <= len(item) <= 20 and item.strip().isalnum()
+                ))[:5]
+                if symbols:
+                    self.market_watch_symbols = symbols
+            selected = message.get("marketWatchSymbol")
+            if isinstance(selected, str) and selected in self.market_watch_symbols:
+                if selected != self.market_watch_symbol:
+                    self.market_watch_history.clear()
+                self.market_watch_symbol = selected
+            interval = message.get("marketWatchInterval")
+            if interval in {"1m", "15m", "1h", "4h"}:
+                if interval != self.market_watch_interval:
+                    self.market_watch_history.clear()
+                self.market_watch_interval = interval
             self._sync_bubble_size()
             self._save_layout()
 
@@ -984,6 +1049,8 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
                 return True
             if self.bubble_mode == "hidden":
                 return False
+            if self.market_watch_enabled:
+                return True
             if self.bubble_mode == "always":
                 return True
             if len(self.tasks) >= 2:
@@ -1376,7 +1443,106 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
                 voice_extra = 44 if self.voice_mode != "off" else 0
                 call_history_extra = 150 if self.voice_mode == "call" else 0
                 top = round((84 + voice_extra + call_history_extra) * scale)
+            if self.market_watch_enabled and self.voice_mode == "off":
+                top += round(72 * scale)
             return top + self._composer_height() + footer + round(12 * scale)
+
+        def _market_watch_top(self, card_y: int) -> int:
+            scale = self.bubble_scale
+            if len(self.tasks) >= 2 and self.voice_mode == "off":
+                base = 58 + min(len(self.tasks), 3) * 26
+            else:
+                base = 84
+            return card_y + round((base + 4) * scale)
+
+        def _draw_market_watch(self, painter: QPainter, card_x: int, card_y: int, card_width: int, s: float) -> None:
+            x = card_x + round(16 * s)
+            y = self._market_watch_top(card_y)
+            width = card_width - round(32 * s)
+            height = round(64 * s)
+            painter.save()
+            painter.setPen(QPen(QColor("#E1E8F0"), 1))
+            painter.setBrush(QColor("#F7FAFD"))
+            painter.drawRoundedRect(QRectF(x, y, width, height), round(12 * s), round(12 * s))
+
+            title_font = QFont("Microsoft YaHei UI")
+            title_font.setPointSizeF(8.0 * max(1.0, s))
+            detail_font = QFont("Microsoft YaHei UI")
+            detail_font.setPointSizeF(9.0 * max(1.0, s))
+            price_font = QFont("Microsoft YaHei UI")
+            price_font.setPointSizeF(13.0 * max(1.0, s))
+            price_font.setWeight(QFont.Weight.DemiBold)
+            symbol_label = self.market_watch_symbol.replace("USDT", "/USDT")
+            title = f"盯盘  ·  {symbol_label}  ·  {self.market_watch_interval}"
+            painter.setFont(title_font)
+            painter.setPen(QColor("#677385"))
+            title_width = width - round(92 * s)
+            painter.drawText(x + round(10 * s), y + round(4 * s), title_width, round(17 * s),
+                             Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                             QFontMetrics(title_font).elidedText(title, Qt.TextElideMode.ElideRight, title_width))
+            status_text = {
+                "connected": "● 实时", "connecting": "连接中", "reconnecting": "重连中",
+                "unavailable": "不可用", "disabled": "已关闭",
+            }.get(self.market_watch_status, "等待中")
+            status_color = QColor("#16A05D") if self.market_watch_status == "connected" else QColor("#C1842A") if self.market_watch_status == "reconnecting" else QColor("#8A929E")
+            painter.setPen(status_color)
+            painter.drawText(x + width - round(80 * s), y + round(4 * s), round(70 * s), round(17 * s),
+                             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, status_text)
+
+            quote = self.market_watch_quotes.get(self.market_watch_symbol)
+            if not isinstance(quote, dict):
+                status_labels = {
+                    "connecting": "正在连接公开行情…", "reconnecting": "行情断开，正在重连…",
+                    "unavailable": "当前运行环境不支持 WebSocket", "disabled": "行情已关闭",
+                }
+                painter.setFont(detail_font)
+                painter.setPen(QColor("#8A929E"))
+                painter.drawText(x + round(10 * s), y + round(25 * s), width - round(20 * s), round(28 * s),
+                                 Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                                 status_labels.get(self.market_watch_status, "等待行情数据…"))
+                painter.restore()
+                return
+
+            price = quote.get("price")
+            change = quote.get("changePercent")
+            if isinstance(price, (int, float)) and not isinstance(price, bool):
+                price_text = f"{price:,.8g}"
+            else:
+                price_text = "--"
+            if isinstance(change, (int, float)) and not isinstance(change, bool):
+                change_text = f"{change:+.2f}%"
+                color = QColor("#16A05D") if change > 0 else QColor("#D94B4B") if change < 0 else QColor("#697586")
+            else:
+                change_text = "--"
+                color = QColor("#697586")
+            painter.setFont(price_font)
+            painter.setPen(QColor("#273142"))
+            painter.drawText(x + round(10 * s), y + round(23 * s), round(155 * s), round(27 * s),
+                             Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, price_text)
+            painter.setFont(detail_font)
+            painter.setPen(color)
+            painter.drawText(x + round(164 * s), y + round(24 * s), round(82 * s), round(25 * s),
+                             Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, change_text)
+
+            history = list(self.market_watch_history)
+            if len(history) > 1:
+                chart_x = x + round(255 * s)
+                chart_y = y + round(30 * s)
+                chart_width = max(round(42 * s), width - round(267 * s))
+                chart_height = round(22 * s)
+                low, high = min(history), max(history)
+                span = high - low or max(abs(high) * 0.0001, 1e-8)
+                path = QPainterPath()
+                for index, point in enumerate(history):
+                    px = chart_x + chart_width * index / (len(history) - 1)
+                    py = chart_y + chart_height * (1 - (point - low) / span)
+                    if index == 0:
+                        path.moveTo(px, py)
+                    else:
+                        path.lineTo(px, py)
+                painter.setPen(QPen(color, max(1.5, 2 * s), Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
+                painter.drawPath(path)
+            painter.restore()
 
         def _draw_card_background(
             self,
@@ -1572,6 +1738,9 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
                 )
                 if card_state in {"VOICE_RECORD", "VOICE_CALL"}:
                     self._draw_voice_visualizer(painter, card_x, card_y, card_width, s)
+
+            if self.market_watch_enabled and self.voice_mode == "off" and self._bubble_visible():
+                self._draw_market_watch(painter, card_x, card_y, card_width, s)
 
             if self._bubble_visible():
                 composer_x, composer_y, composer_width, composer_height = self._composer_rect()
@@ -1781,6 +1950,25 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
                 action.setCheckable(True)
                 action.setChecked(self.sound_pack == pack)
                 sound_pack_actions[action] = pack
+            market_menu = menu.addMenu("炒币盯盘")
+            market_enabled_action = market_menu.addAction("启用实时行情卡片")
+            market_enabled_action.setCheckable(True)
+            market_enabled_action.setChecked(self.market_watch_enabled)
+            market_menu.addSeparator()
+            market_symbol_menu = market_menu.addMenu("桌宠展示币种")
+            market_symbol_actions = {}
+            for symbol in self.market_watch_symbols:
+                action = market_symbol_menu.addAction(symbol.replace("USDT", "/USDT"))
+                action.setCheckable(True)
+                action.setChecked(self.market_watch_symbol == symbol)
+                market_symbol_actions[action] = symbol
+            market_interval_menu = market_menu.addMenu("涨跌周期")
+            market_interval_actions = {}
+            for label, interval in (("1 分钟", "1m"), ("15 分钟", "15m"), ("1 小时", "1h"), ("4 小时", "4h")):
+                action = market_interval_menu.addAction(label)
+                action.setCheckable(True)
+                action.setChecked(self.market_watch_interval == interval)
+                market_interval_actions[action] = interval
             open_webui_action = menu.addAction(self.open_label)
             menu.addSeparator()
             hide_action = menu.addAction("本次隐藏")
@@ -1813,6 +2001,21 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             elif selected in sound_pack_actions:
                 self.sound_pack = sound_pack_actions[selected]
                 emit_reply("settings", soundPack=self.sound_pack)
+            elif selected == market_enabled_action:
+                self.market_watch_enabled = market_enabled_action.isChecked()
+                emit_reply("settings", marketWatchEnabled=self.market_watch_enabled)
+                self._sync_bubble_size()
+                self.update()
+            elif selected in market_symbol_actions:
+                self.market_watch_symbol = market_symbol_actions[selected]
+                self.market_watch_history.clear()
+                emit_reply("settings", marketWatchSymbol=self.market_watch_symbol)
+                self.update()
+            elif selected in market_interval_actions:
+                self.market_watch_interval = market_interval_actions[selected]
+                self.market_watch_history.clear()
+                emit_reply("settings", marketWatchInterval=self.market_watch_interval)
+                self.update()
             elif selected == open_webui_action:
                 self._open_client()
             elif selected == hide_action:

@@ -5,7 +5,11 @@ import test from 'node:test'
 import { createConfigHandler } from '../src/index.js'
 
 function settingsFixture() {
-  let value = { enabled: true, scale: 1, bubbleScale: 1, activityLevel: 'normal', reducedMotion: false, soundEnabled: true, includeSubagents: false }
+  let value = {
+    enabled: true, scale: 1, bubbleScale: 1, activityLevel: 'normal', reducedMotion: false, soundEnabled: true,
+    includeSubagents: false, marketWatchEnabled: false,
+    marketWatchSymbols: 'BTCUSDT,ETHUSDT,SOLUSDT,BNBUSDT,DOGEUSDT', marketWatchSymbol: 'BTCUSDT', marketWatchInterval: '15m',
+  }
   return {
     get: () => ({ ...value }),
     update: async (patch) => { value = { ...value, ...patch } },
@@ -44,6 +48,24 @@ test('local config endpoint reads and persists an allowed patch', async () => {
   assert.equal(changed.body.scale, 0.8)
   assert.equal(changed.body.bubbleScale, 0.8)
   assert.equal(changed.body.soundEnabled, false)
+})
+
+test('config endpoint persists market watch selection and interval', async () => {
+  const handler = createConfigHandler(settingsFixture())
+  const changed = await request(handler, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      marketWatchEnabled: true,
+      marketWatchSymbols: 'BTCUSDT,ETHUSDT,SOLUSDT,BNBUSDT,DOGEUSDT',
+      marketWatchSymbol: 'SOLUSDT',
+      marketWatchInterval: '1h',
+    }),
+    origin: 'http://127.0.0.1:2026',
+  })
+  assert.equal(changed.status, 200)
+  assert.equal(changed.body.marketWatchEnabled, true)
+  assert.equal(changed.body.marketWatchSymbol, 'SOLUSDT')
+  assert.equal(changed.body.marketWatchInterval, '1h')
 })
 
 test('config endpoint persists per-event sound choices and drops unknown states', async () => {
