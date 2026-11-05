@@ -57,6 +57,7 @@ const snapshotMessageKinds = new Set([
   CompanionMessageKind.CONFIG,
   CompanionMessageKind.BALANCE,
   CompanionMessageKind.MARKET,
+  CompanionMessageKind.NOVEL,
 ])
 const coalescibleMessageKinds = new Set([
   ...snapshotMessageKinds,
@@ -640,6 +641,7 @@ export class HelperProcess {
     if (message.kind === CompanionMessageKind.CONFIG) this.snapshot.set('config', encodeMessage(message))
     if (message.kind === CompanionMessageKind.BALANCE) this.snapshot.set('balance', encodeMessage(message))
     if (message.kind === CompanionMessageKind.MARKET) this.snapshot.set('market', encodeMessage(message))
+    if (message.kind === CompanionMessageKind.NOVEL) this.snapshot.set('novel', encodeMessage(message))
   }
 
   #flushSnapshot() {
@@ -712,6 +714,10 @@ export class HelperProcess {
       }
       if (reply?.protocolVersion === 1 && reply.kind === CompanionMessageKind.CLOSED) {
         this.restartSuppressed = true
+        return
+      }
+      if (reply?.protocolVersion === 1 && reply.kind === CompanionMessageKind.NOVEL_ACTION) {
+        this.options.onNovelAction?.(reply)
         return
       }
       if (reply?.protocolVersion === 1 && reply.kind === CompanionMessageKind.SETTINGS) {

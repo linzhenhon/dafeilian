@@ -15,6 +15,7 @@ import { createUserSettingsStore, defaultUserSettingsPath } from './user-setting
 import { resolveClientTarget } from './client-target.js'
 import { isLocalRequest, jsonResponse } from './local-http.js'
 import { TASK_TARGET_ENDPOINT, createTaskTargetHandler, submitDesktopTask } from './task-input.js'
+import { NOVEL_ENDPOINT, createNovelReader, createNovelHandler } from './novel-reader.js'
 import { BALANCE_ENDPOINT, createBalanceQuery, createBalanceMonitor, createBalanceHandler, balanceProviderNamespace } from './balance.js'
 import { createMarketWatchMonitor, normalizeMarketInterval, normalizeMarketSymbol, normalizeMarketSymbols } from './market-watch.js'
 import {
@@ -40,6 +41,7 @@ export const SOUND_ENDPOINT = '/plugins/dsh-dafeiyu/sound'
 export { CUSTOM_SOUND_ENDPOINT }
 export { TASK_TARGET_ENDPOINT }
 export { BALANCE_ENDPOINT }
+export { NOVEL_ENDPOINT }
 
 const here = dirname(fileURLToPath(import.meta.url))
 const assetsRoot = resolve(here, '..', 'assets')
@@ -250,7 +252,7 @@ export function createEventStream() {
     },
     broadcast(message) {
       if (message?.kind === 'hello' || message?.kind === 'state' || message?.kind === 'task'
-        || message?.kind === 'tasks' || message?.kind === 'config' || message?.kind === 'balance') {
+        || message?.kind === 'tasks' || message?.kind === 'config' || message?.kind === 'balance' || message?.kind === 'novel') {
         snapshot.set(message.kind, message)
       }
       const payload = `data: ${JSON.stringify(message)}\n\n`
@@ -467,6 +469,11 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
   let diagnosticsLogged = false
 
   let bridge
+  const novelReader = createNovelReader({ onChange(snapshot) {
+    const message = createMessage(CompanionMessageKind.NOVEL, snapshot)
+    if (bridge) bridge.send(message)
+    else eventStream.broadcast(message)
+  } })
   let reducer
   let restartTimer
   let activeSessionId
@@ -642,6 +649,16 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
           if (bridge) applyLiveSettings(settings.get())
         })
       },
+      onNovelAction: (report) => {
+        try {
+          if (typeof report.importPath === 'string') novelReader.importFile(report.importPath)
+          else novelReader.update(report.patch)
+        } catch (error) {
+          bridge?.send(createMessage(CompanionMessageKind.NOVEL, {
+            ...novelReader.get(), error: error instanceof Error ? error.message : '小说处理失败',
+          }))
+        }
+      },
       onSubmitTask: (report) => {
         const sourceBridge = bridge
         let controller
@@ -743,6 +760,7 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
       message: resolved.idleTitle ?? defaults.idleTitle,
       detail: 'DSH · 等待下一次任务',
     }))
+    bridge.send(createMessage(CompanionMessageKind.NOVEL, novelReader.get()))
     if (balance.get().status !== 'disabled') bridge.send(createMessage(CompanionMessageKind.BALANCE, balance.get()))
     configureMarketWatch(resolved)
     logger.info?.('dsh-dafeilian companion bridge started')
@@ -847,6 +865,10 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
       httpCtx.effect(
         () => httpCtx.webServer.register({ kind: 'exact', path: EVENTS_ENDPOINT, handler: createEventsHandler(eventStream) }),
         'dsh-dafeilian: local event stream',
+      )
+      httpCtx.effect(
+        () => httpCtx.webServer.register({ kind: 'exact', path: NOVEL_ENDPOINT, handler: createNovelHandler(novelReader) }),
+        'dsh-dafeilian: local novel reader',
       )
       httpCtx.effect(
         () => httpCtx.webServer.register({ kind: 'exact', path: BALANCE_ENDPOINT, handler: createBalanceHandler(balance) }),

@@ -30,6 +30,7 @@ export const SOUND_ENDPOINT = plugin.SOUND_ENDPOINT
 export const CUSTOM_SOUND_ENDPOINT = plugin.CUSTOM_SOUND_ENDPOINT
 export const TASK_TARGET_ENDPOINT = plugin.TASK_TARGET_ENDPOINT
 export const BALANCE_ENDPOINT = plugin.BALANCE_ENDPOINT
+export const NOVEL_ENDPOINT = plugin.NOVEL_ENDPOINT
 export const createConfigHandler = plugin.createConfigHandler
 export const createEventStream = plugin.createEventStream
 export const createEventsHandler = plugin.createEventsHandler

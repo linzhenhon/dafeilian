@@ -22,6 +22,7 @@
     "runtime/layout_store.py",
     "runtime/asset_paths.py",
     "runtime/pet_geometry.py",
+    "runtime/novel_reader.py",
     "runtime/__init__.py",
     "runtime/bin/",
     "native/macos/",

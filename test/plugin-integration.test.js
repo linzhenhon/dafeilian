@@ -106,6 +106,7 @@ test('plugin forwards DSH-shaped session events and owns helper shutdown', async
   assert.deepEqual(messages.map((message) => message.kind), [
     'hello',
     'state',
+    'novel',
     'state',
     'state',
     'pulse',

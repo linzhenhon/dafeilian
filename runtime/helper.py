@@ -29,12 +29,14 @@ try:
     from .asset_paths import bundle_root
     from .pet_geometry import bubble_top, position_window
     from .voice_capture import Pcm16MonoConverter, VoiceSegmenter
+    from .novel_reader import NovelReader
 except ImportError:
     from animation_model import AnimationModel, crossfade_duration, flight_clip, flight_heading, motion_pose
     from layout_store import default_layout_path, load_layout, save_layout
     from asset_paths import bundle_root
     from pet_geometry import bubble_top, position_window
     from voice_capture import Pcm16MonoConverter, VoiceSegmenter
+    from novel_reader import NovelReader
 
 
 PROTOCOL_VERSION = 1
@@ -550,6 +552,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             self.market_watch_status = "disabled"
             self.market_watch_quotes: dict[str, dict[str, Any]] = {}
             self.market_watch_history: deque[float] = deque(maxlen=40)
+            self.novel_reader = NovelReader(self, emit_reply)
             self.drag_origin: QPoint | None = None
             self.drag_direction_anchor: QPoint | None = None
             self.drag_direction = "down"
@@ -697,6 +700,8 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
                     self._append_call_message("大哥", str(message.get("text", "")))
             elif kind == "speak":
                 self._speak_reply(str(message.get("text", "")))
+            elif kind == "novel":
+                self.novel_reader.apply(message)
             elif kind == "balance":
                 self.balance_summary = str(message.get("summary", ""))[:200]
                 self._sync_bubble_size()
@@ -935,6 +940,9 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             self.update()
 
         def _play_idle_micro(self) -> None:
+            if self.novel_reader.active():
+                self._schedule_micro()
+                return
             if self.reduced_motion:
                 return
             previous_frame = self.model.frame
@@ -1816,6 +1824,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
                 # Keep the old frame opaque underneath so the pet never flashes transparent.
                 draw_pet(self.fade_from_pixmap, 1.0)
             draw_pet(pixmap, fade_alpha)
+            self.novel_reader.draw_book(painter, self._pet_rect(), self.reduced_motion)
 
         def mousePressEvent(self, event: QMouseEvent) -> None:
             if event.button() == Qt.MouseButton.LeftButton and self._pet_hit(event.position().x(), event.position().y()):
@@ -1919,6 +1928,8 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
 
         def contextMenuEvent(self, event: Any) -> None:
             menu = QMenu(self)
+            self.novel_reader.add_menu(menu)
+            menu.addSeparator()
             record_action = menu.addAction("停止录音" if self.voice_mode == "dictation" else "语音录入…")
             call_action = menu.addAction("挂断语音通话" if self.voice_mode == "call" else "开始语音通话")
             menu.addSeparator()
