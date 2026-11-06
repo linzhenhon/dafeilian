@@ -50,7 +50,7 @@ class XiangqiMode:
             self._create_dialog()
         screen = self.owner._screen_geometry_at(self.owner.pet_x, self.owner.pet_y)
         if screen is not None:
-            self.dialog.resize(min(430, screen.width() - 32), min(620, screen.height() - 54))
+            self.dialog.resize(min(380, screen.width() - 32), min(540, screen.height() - 54))
             width, height = self.dialog.width(), self.dialog.height()
             x = self.owner.pet_x - width - 14
             if x < screen.left():
@@ -195,14 +195,14 @@ class XiangqiMode:
         class Board(QWidget):
             def __init__(self, parent):
                 super().__init__(parent)
-                self.setMinimumSize(286, 320)
+                self.setMinimumSize(255, 280)
                 self.setSizePolicy(self.sizePolicy().Policy.Expanding, self.sizePolicy().Policy.Expanding)
                 self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
                 self.setAccessibleName("中国象棋棋盘，点击红棋后选择绿色落点")
                 self.setCursor(Qt.CursorShape.PointingHandCursor)
 
             def sizeHint(self):
-                return QSize(396, 440)
+                return QSize(350, 385)
 
             def grid(self):
                 step = min((self.width() - 48) / 8, (self.height() - 48) / 9)
@@ -294,7 +294,7 @@ class XiangqiMode:
 
         self.dialog = QDialog(self.owner, Qt.WindowType.Window | Qt.WindowType.WindowStaysOnTopHint)
         self.dialog.setWindowTitle("小肥蠊 · 下象棋")
-        self.dialog.setMinimumSize(330, 470)
+        self.dialog.setMinimumSize(300, 420)
         self.dialog.setFont(QFont("Microsoft YaHei UI", 10))
         self.dialog.setStyleSheet(
             "QDialog { background: #FAF7F0; } QLabel { color: #344741; }"
