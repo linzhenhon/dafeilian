@@ -1,5 +1,10 @@
 export const DEFAULT_MARKET_SYMBOLS = Object.freeze(['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'DOGEUSDT'])
 export const MARKET_INTERVALS = Object.freeze(['1m', '15m', '1h', '4h'])
+export const BINANCE_STREAM_ENDPOINTS = Object.freeze([
+  Object.freeze({ url: 'wss://stream.binance.com:9443', label: 'stream.binance.com:9443' }),
+  Object.freeze({ url: 'wss://stream.binance.com:443', label: 'stream.binance.com:443' }),
+  Object.freeze({ url: 'wss://data-stream.binance.vision:443', label: 'data-stream.binance.vision' }),
+])
 
 export function normalizeMarketSymbols(value) {
   const parts = Array.isArray(value) ? value : String(value ?? '').split(',')
@@ -49,18 +54,22 @@ export function createMarketWatchMonitor({
   logger = console,
   reconnectBaseMs = 2000,
   reconnectMaxMs = 30000,
+  connectTimeoutMs = 10000,
 } = {}) {
   let config = { enabled: false, symbols: [...DEFAULT_MARKET_SYMBOLS], interval: '15m', selectedSymbol: DEFAULT_MARKET_SYMBOLS[0] }
   let signature = ''
   let socket
   let reconnectTimer
+  let connectTimer
   let generation = 0
+  let endpointIndex = 0
   let reconnectDelay = reconnectBaseMs
   const quotes = new Map()
 
   const snapshot = (status) => ({
     enabled: config.enabled,
     status,
+    endpoint: BINANCE_STREAM_ENDPOINTS[endpointIndex].label,
     symbols: [...config.symbols],
     interval: config.interval,
     selectedSymbol: config.selectedSymbol,
@@ -72,7 +81,9 @@ export function createMarketWatchMonitor({
   const disconnect = () => {
     generation += 1
     if (reconnectTimer) clearTimeout(reconnectTimer)
+    if (connectTimer) clearTimeout(connectTimer)
     reconnectTimer = undefined
+    connectTimer = undefined
     const active = socket
     socket = undefined
     if (active) {
@@ -98,17 +109,30 @@ export function createMarketWatchMonitor({
       return
     }
     const streams = config.symbols.map((symbol) => `${symbol.toLowerCase()}@kline_${config.interval}`).join('/')
-    const url = `wss://stream.binance.com:9443/stream?streams=${streams}`
+    const endpoint = BINANCE_STREAM_ENDPOINTS[endpointIndex]
+    const url = `${endpoint.url}/stream?streams=${streams}`
     publish('connecting')
     let next
     try { next = new WebSocketImpl(url) } catch (error) {
       logger.warn?.(`market watch connection failed: ${error instanceof Error ? error.message : String(error)}`)
+      endpointIndex = (endpointIndex + 1) % BINANCE_STREAM_ENDPOINTS.length
       scheduleReconnect(token)
       return
     }
     socket = next
+    connectTimer = setTimeout(() => {
+      if (token !== generation || socket !== next) return
+      socket = undefined
+      connectTimer = undefined
+      endpointIndex = (endpointIndex + 1) % BINANCE_STREAM_ENDPOINTS.length
+      try { next.close() } catch {}
+      scheduleReconnect(token)
+    }, connectTimeoutMs)
+    connectTimer.unref?.()
     next.addEventListener('open', () => {
       if (token !== generation) return
+      if (connectTimer) clearTimeout(connectTimer)
+      connectTimer = undefined
       reconnectDelay = reconnectBaseMs
       publish('connected')
     })
@@ -130,8 +154,11 @@ export function createMarketWatchMonitor({
       }
     })
     next.addEventListener('close', () => {
-      if (token !== generation) return
+      if (token !== generation || socket !== next) return
+      if (connectTimer) clearTimeout(connectTimer)
+      connectTimer = undefined
       socket = undefined
+      endpointIndex = (endpointIndex + 1) % BINANCE_STREAM_ENDPOINTS.length
       scheduleReconnect(token)
     })
   }

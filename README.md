@@ -167,7 +167,7 @@ dsh plugin --profile desktop add .
 
 设置页修改实时生效。请直接使用桌宠气泡中的输入框，将任务排队发送到当前打开的 DSH 对话；发送失败时输入内容保留，可修改后重试。右键菜单保留语音录入、语音通话、大小、减少动态、声音、打开对应 DSH 客户端，以及仅在本次运行隐藏／关闭角色等操作。
 
-盯盘使用币安公开现货 WebSocket K 线流。涨跌幅按所选周期当前 K 线的开盘价计算；最多订阅五个币种，只在桌宠卡片显示当前选中的一个。具体接口见[币安 K 线 WebSocket 文档](https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-streams.md#klinecandlestick-streams)。
+盯盘使用币安公开现货 WebSocket K 线流。涨跌幅按所选周期当前 K 线的开盘价计算；最多订阅五个币种，只在桌宠卡片显示当前选中的一个。连接会自动轮换币安的 9443、443 端口和仅提供公开行情的备用域名。若桌宠持续显示“重试”，请检查当前网络或代理是否能访问币安行情域名。具体接口见[币安 K 线 WebSocket 文档](https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-streams.md#klinecandlestick-streams)和[公开行情备用域名说明](https://github.com/binance/binance-spot-api-docs/blob/master/faqs/market_data_only.md)。
 
 点击动作会完整播完，再回到当前任务状态；新任务可立即打断装饰动作。拖拽期间只播放悬空姿势，松手后完整落地。具体触发、频率和衔接规则见 [动作说明](docs/animation-behavior.md)。
 

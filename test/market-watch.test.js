@@ -77,3 +77,62 @@ test('market watch subscribes to five public streams and publishes quotes withou
   assert.equal(socket.closed, true)
   monitor.dispose()
 })
+
+test('market watch rotates Binance endpoints after a stalled or closed connection', async () => {
+  class FakeWebSocket {
+    static instances = []
+
+    constructor(url) {
+      this.url = url
+      this.listeners = new Map()
+      this.closed = false
+      FakeWebSocket.instances.push(this)
+    }
+
+    addEventListener(name, listener) {
+      const listeners = this.listeners.get(name) ?? []
+      listeners.push(listener)
+      this.listeners.set(name, listeners)
+    }
+
+    emit(name, event = {}) {
+      for (const listener of this.listeners.get(name) ?? []) listener(event)
+    }
+
+    close() {
+      this.closed = true
+      this.emit('close')
+    }
+  }
+
+  const waitForSockets = async (count) => {
+    const deadline = Date.now() + 1000
+    while (FakeWebSocket.instances.length < count && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 2))
+    }
+    assert.ok(FakeWebSocket.instances.length >= count, `expected ${count} WebSocket connections`)
+  }
+
+  const updates = []
+  const monitor = createMarketWatchMonitor({
+    WebSocketImpl: FakeWebSocket,
+    onUpdate: (snapshot) => updates.push(snapshot),
+    reconnectBaseMs: 1,
+    reconnectMaxMs: 1,
+    connectTimeoutMs: 15,
+  })
+  monitor.configure({ enabled: true, symbols: ['BTCUSDT'], selectedSymbol: 'BTCUSDT', interval: '15m' })
+  assert.match(FakeWebSocket.instances[0].url, /^wss:\/\/stream\.binance\.com:9443\//)
+
+  await waitForSockets(2)
+  assert.match(FakeWebSocket.instances[1].url, /^wss:\/\/stream\.binance\.com:443\//)
+  assert.ok(updates.some((snapshot) => snapshot.status === 'reconnecting' && snapshot.endpoint === 'stream.binance.com:443'))
+
+  FakeWebSocket.instances[1].emit('open')
+  FakeWebSocket.instances[1].emit('close')
+  await waitForSockets(3)
+  assert.match(FakeWebSocket.instances[2].url, /^wss:\/\/data-stream\.binance\.vision:443\//)
+  assert.ok(updates.some((snapshot) => snapshot.status === 'reconnecting' && snapshot.endpoint === 'data-stream.binance.vision'))
+
+  monitor.stop()
+})

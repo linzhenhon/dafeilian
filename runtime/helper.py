@@ -560,6 +560,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None,
             self.market_watch_symbol = "BTCUSDT"
             self.market_watch_interval = "15m"
             self.market_watch_status = "disabled"
+            self.market_watch_endpoint = "stream.binance.com:9443"
             self.market_watch_quotes: dict[str, dict[str, Any]] = {}
             self.market_watch_history: deque[float] = deque(maxlen=40)
             self.novel_reader = NovelReader(self, emit_reply)
@@ -750,6 +751,9 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None,
                         self.market_watch_history.clear()
                     self.market_watch_symbol = selected
                 self.market_watch_status = str(message.get("status", "connecting"))
+                endpoint = message.get("endpoint")
+                if isinstance(endpoint, str) and len(endpoint) <= 80:
+                    self.market_watch_endpoint = endpoint
                 raw_quotes = message.get("quotes")
                 if isinstance(raw_quotes, list):
                     self.market_watch_quotes = {
@@ -1527,8 +1531,14 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None,
             painter.drawText(x + round(10 * s), y + round(4 * s), title_width, round(17 * s),
                              Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                              QFontMetrics(title_font).elidedText(title, Qt.TextElideMode.ElideRight, title_width))
+            endpoint_short = {
+                "stream.binance.com:9443": "9443",
+                "stream.binance.com:443": "443",
+                "data-stream.binance.vision": "vision",
+            }.get(self.market_watch_endpoint, "备用")
             status_text = {
-                "connected": "● 实时", "connecting": "连接中", "reconnecting": "重连中",
+                "connected": "● 实时", "connecting": f"连接 {endpoint_short}",
+                "reconnecting": f"重试 {endpoint_short}",
                 "unavailable": "不可用", "disabled": "已关闭",
             }.get(self.market_watch_status, "等待中")
             status_color = QColor("#16A05D") if self.market_watch_status == "connected" else QColor("#C1842A") if self.market_watch_status == "reconnecting" else QColor("#8A929E")
@@ -1539,14 +1549,20 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None,
             quote = self.market_watch_quotes.get(self.market_watch_symbol)
             if not isinstance(quote, dict):
                 status_labels = {
-                    "connecting": "正在连接公开行情…", "reconnecting": "行情断开，正在重连…",
+                    "connecting": f"正在连接 {self.market_watch_endpoint}…",
+                    "reconnecting": f"连接失败，正在尝试 {self.market_watch_endpoint}…",
                     "unavailable": "当前运行环境不支持 WebSocket", "disabled": "行情已关闭",
                 }
                 painter.setFont(detail_font)
                 painter.setPen(QColor("#8A929E"))
+                status_label = QFontMetrics(detail_font).elidedText(
+                    status_labels.get(self.market_watch_status, "等待行情数据…"),
+                    Qt.TextElideMode.ElideRight,
+                    width - round(20 * s),
+                )
                 painter.drawText(x + round(10 * s), y + round(25 * s), width - round(20 * s), round(28 * s),
                                  Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                                 status_labels.get(self.market_watch_status, "等待行情数据…"))
+                                 status_label)
                 painter.restore()
                 return
 
