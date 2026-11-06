@@ -33,6 +33,7 @@ try {
     --clean `
     --onefile `
     --console `
+    --additional-hooks-dir (Join-Path $PSScriptRoot 'pyinstaller-hooks') `
     --name dsh-dafeiyu-helper `
     --distpath $output `
     --workpath $work `

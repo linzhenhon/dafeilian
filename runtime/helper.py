@@ -30,6 +30,8 @@ try:
     from .pet_geometry import bubble_top, position_window
     from .voice_capture import Pcm16MonoConverter, VoiceSegmenter
     from .novel_reader import NovelReader
+    from .xiangqi_mode import XiangqiMode
+    from .video_mode import VideoMode
 except ImportError:
     from animation_model import AnimationModel, crossfade_duration, flight_clip, flight_heading, motion_pose
     from layout_store import default_layout_path, load_layout, save_layout
@@ -37,6 +39,8 @@ except ImportError:
     from pet_geometry import bubble_top, position_window
     from voice_capture import Pcm16MonoConverter, VoiceSegmenter
     from novel_reader import NovelReader
+    from xiangqi_mode import XiangqiMode
+    from video_mode import VideoMode
 
 
 PROTOCOL_VERSION = 1
@@ -240,7 +244,9 @@ def run_headless(recorder: EventRecorder) -> int:
     return 0
 
 
-def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, preview_voice_mode: str | None = None) -> int:
+def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None,
+               preview_voice_mode: str | None = None, preview_chess: bool = False,
+               preview_video: Path | None = None, preview_douyin: str | None = None) -> int:
     configure_qt_platform()
     try:
         from PySide6.QtCore import QAbstractNativeEventFilter, QObject, QPoint, QRectF, QSize, Qt, QTimer, QUrl, Signal
@@ -545,6 +551,10 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             self.webui_url = os.environ.get("DSH_DAFEIYU_WEBUI_URL", "http://127.0.0.1:3080/")
             self.open_label = os.environ.get("DSH_DAFEIYU_OPEN_LABEL", "打开 DSH")
             self.balance_summary = ""
+            self.chess_mode = False
+            self.xiangqi_mode = XiangqiMode(self)
+            self.watching_video = False
+            self.video_watcher = VideoMode(self)
             self.market_watch_enabled = False
             self.market_watch_symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "DOGEUSDT"]
             self.market_watch_symbol = "BTCUSDT"
@@ -636,6 +646,19 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             self.call_transcript.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
             self.call_transcript.setAcceptDrops(False)
             self.call_transcript.hide()
+            self.chess_button = QPushButton("下象棋", self)
+            self.chess_button.setAccessibleName("与小肥蠊下象棋")
+            self.chess_button.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.chess_button.setStyleSheet(
+                "QPushButton { color: #2E806B; background: #EAF3ED; border: 0; border-radius: 8px;"
+                " padding: 2px 8px; font-size: 11px; } QPushButton:hover { background: #D8EADD; }"
+            )
+            self.chess_button.clicked.connect(self.xiangqi_mode.enter)
+            self.video_button = QPushButton("看视频", self)
+            self.video_button.setAccessibleName("和小肥蠊一起看视频")
+            self.video_button.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.video_button.setStyleSheet(self.chess_button.styleSheet())
+            self.video_button.clicked.connect(self.video_watcher.enter)
             self._refresh_voice_buttons()
             self._refresh_task_files()
             self._apply_window_size()
@@ -940,7 +963,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             self.update()
 
         def _play_idle_micro(self) -> None:
-            if self.novel_reader.active():
+            if self.chess_mode or self.watching_video or self.novel_reader.active():
                 self._schedule_micro()
                 return
             if self.reduced_motion:
@@ -1051,6 +1074,8 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             self.micro_timer.start(self.model.overlay_remaining_ms + random.randint(lower, upper))
 
         def _bubble_visible(self) -> bool:
+            if self.chess_mode or self.watching_video:
+                return False
             if self.voice_mode != "off" or "dictation" in self.voice_pending.values():
                 return True
             if self.task_files:
@@ -1162,7 +1187,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             card_x, card_y, card_width, card_height = self._bubble_rect()
             scale = self.bubble_scale
             margin = round(16 * scale)
-            footer = round(28 * scale) if self.balance_summary else 0
+            footer = round(28 * scale)
             height = self._composer_height()
             bottom = card_y + card_height - footer - round(12 * scale)
             return card_x + margin, bottom - height, card_width - 2 * margin, height
@@ -1171,6 +1196,10 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             if self.task_input is None or self.task_inline_send is None or self.task_file_button is None or self.voice_record_button is None or self.voice_call_button is None:
                 return
             visible = self._bubble_visible()
+            if hasattr(self, "chess_button"):
+                self.chess_button.setVisible(visible)
+            if hasattr(self, "video_button"):
+                self.video_button.setVisible(visible)
             self.task_input.setVisible(visible)
             self.task_inline_send.setVisible(visible)
             self.voice_record_button.setVisible(visible)
@@ -1184,9 +1213,19 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
                 self.call_transcript.setVisible(visible and self.voice_mode == "call")
             if not visible:
                 return
-            card_x, card_y, card_width, _card_height = self._bubble_rect()
+            card_x, card_y, card_width, card_height = self._bubble_rect()
             composer_x, composer_y, composer_width, composer_height = self._composer_rect()
             scale = self.bubble_scale
+            if hasattr(self, "chess_button"):
+                self.chess_button.setGeometry(
+                    card_x + card_width - round(90 * scale), card_y + card_height - round(31 * scale),
+                    round(74 * scale), max(20, round(23 * scale)),
+                )
+            if hasattr(self, "video_button"):
+                self.video_button.setGeometry(
+                    card_x + card_width - round(170 * scale), card_y + card_height - round(31 * scale),
+                    round(74 * scale), max(20, round(23 * scale)),
+                )
             margin = round(16 * scale)
             button_size = max(30, round(36 * scale))
             gap = max(6, round(8 * scale))
@@ -1443,7 +1482,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
 
         def _card_height(self) -> int:
             scale = self.bubble_scale
-            footer = round(28 * scale) if self.balance_summary else 0
+            footer = round(28 * scale)
             if len(self.tasks) >= 2 and self.voice_mode == "off":
                 rows = min(len(self.tasks), 3)
                 top = round((58 + rows * 26) * scale)
@@ -1772,7 +1811,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
                 balance_font.setPointSizeF(9.0 * max(1.0, s))
                 painter.setFont(balance_font)
                 painter.setPen(QColor("#53616F"))
-                text_width = card_width - round(32 * s)
+                text_width = card_width - round(194 * s)
                 text = QFontMetrics(balance_font).elidedText(self.balance_summary, Qt.TextElideMode.ElideRight, text_width)
                 painter.drawText(card_x + round(16 * s), card_y + card_height - round(31 * s),
                                  text_width, round(23 * s), Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, text)
@@ -1780,7 +1819,13 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             visual_clip = self.model.active_clip_name
             visual_frame = self.model.frame
             file_reaction = self.file_drop_hover or self.model.overlay_clip_name == "file_catch"
-            if not self.dragging and not file_reaction and self.voice_mode != "off":
+            if not self.dragging and not file_reaction and self.chess_mode:
+                visual_clip = "thinking" if self.xiangqi_mode.busy else "idle"
+                visual_frame = manifest["clips"][visual_clip]["frames"][0]
+            elif not self.dragging and not file_reaction and self.watching_video:
+                visual_clip = "idle"
+                visual_frame = manifest["clips"][visual_clip]["frames"][0]
+            elif not self.dragging and not file_reaction and self.voice_mode != "off":
                 visual_clip = "voice_calling" if self.voice_mode == "call" else "voice_recording"
                 visual_frame = manifest["clips"][visual_clip]["frames"][0]
             elif not self.dragging and not file_reaction and "dictation" in self.voice_pending.values():
@@ -1796,6 +1841,11 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
                 self._now_ms() - self.motion_started_ms,
                 self.reduced_motion,
             )
+            if self.watching_video and not self.dragging and not file_reaction and not self.reduced_motion:
+                angle -= 2
+                if self.video_watcher.animating:
+                    angle += math.sin(time.monotonic() * 1.2) * 1.2
+                    offset_y += math.sin(time.monotonic() * 1.1)
 
             fade_alpha = 1.0
             if visual_clip == self.model.active_clip_name and self.fade_from_pixmap is not None and not self.fade_from_pixmap.isNull():
@@ -1825,6 +1875,8 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
                 draw_pet(self.fade_from_pixmap, 1.0)
             draw_pet(pixmap, fade_alpha)
             self.novel_reader.draw_book(painter, self._pet_rect(), self.reduced_motion)
+            self.xiangqi_mode.draw_prop(painter, self._pet_rect())
+            self.video_watcher.draw_prop(painter, self._pet_rect())
 
         def mousePressEvent(self, event: QMouseEvent) -> None:
             if event.button() == Qt.MouseButton.LeftButton and self._pet_hit(event.position().x(), event.position().y()):
@@ -1928,6 +1980,18 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
 
         def contextMenuEvent(self, event: Any) -> None:
             menu = QMenu(self)
+            if self.watching_video:
+                menu.addAction("继续看视频", self.video_watcher.enter)
+                menu.addAction("收起视频", self.video_watcher.leave)
+            else:
+                menu.addAction("看视频", self.video_watcher.enter)
+            menu.addSeparator()
+            if self.chess_mode:
+                menu.addAction("继续下象棋", self.xiangqi_mode.enter)
+                menu.addAction("收起棋盘", self.xiangqi_mode.leave)
+            else:
+                menu.addAction("下象棋", self.xiangqi_mode.enter)
+            menu.addSeparator()
             self.novel_reader.add_menu(menu)
             menu.addSeparator()
             record_action = menu.addAction("停止录音" if self.voice_mode == "dictation" else "语音录入…")
@@ -2143,6 +2207,10 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
             editor.setFocus()
 
         def _toggle_voice(self, mode: str) -> None:
+            if self.watching_video:
+                self.video_watcher.leave()
+            if self.chess_mode:
+                self.xiangqi_mode.leave()
             if self.voice_mode == mode:
                 self._stop_voice()
                 return
@@ -2695,6 +2763,115 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None, previ
     reader = threading.Thread(target=read_stdin, name="dsh-bigfish-stdin", daemon=True)
     reader.start()
     window.show()
+    if preview_chess and snapshot_path is not None:
+        def chess_preview() -> None:
+            window.xiangqi_mode.enter()
+            window.xiangqi_mode.select(54)
+            window.xiangqi_mode.select(45)
+            started = time.monotonic()
+
+            def save_chess() -> None:
+                mode = window.xiangqi_mode
+                if mode.busy and time.monotonic() - started < 8:
+                    QTimer.singleShot(40, save_chess)
+                    return
+                if mode.busy or len(mode.game.history) != 2:
+                    print("Chess preview failed to complete a local opponent move", file=sys.stderr)
+                    application.exit(2)
+                    return
+                snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+                window.snapshot_saved = window.grab().save(str(snapshot_path))
+                board_path = snapshot_path.with_name(snapshot_path.stem + "-board.png")
+                if not mode.dialog.grab().save(str(board_path)):
+                    application.exit(2)
+
+            QTimer.singleShot(40, save_chess)
+
+        QTimer.singleShot(0, chess_preview)
+    if preview_video is not None and snapshot_path is not None:
+        def video_preview() -> None:
+            mode = window.video_watcher
+            window.snapshot_saved = True
+            if not mode.enter():
+                application.exit(2)
+                return
+            mode.audio.setMuted(True)
+            if not mode.load(str(preview_video)):
+                print("Video preview could not open the local file", file=sys.stderr)
+                application.exit(2)
+                return
+            started = time.monotonic()
+
+            def save_video() -> None:
+                if mode.player.error() != mode.player.Error.NoError or time.monotonic() - started > 8:
+                    print("Video preview could not render a frame: " + mode.player.errorString(), file=sys.stderr)
+                    application.exit(2)
+                    return
+                if mode.video.image.isNull():
+                    QTimer.singleShot(40, save_video)
+                    return
+                mode.player.pause()
+                snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+                window.grab().save(str(snapshot_path))
+                video_path = snapshot_path.with_name(snapshot_path.stem + "-video.png")
+                if not mode.dialog.grab().save(str(video_path)):
+                    application.exit(2)
+
+            QTimer.singleShot(40, save_video)
+
+        QTimer.singleShot(0, video_preview)
+    if preview_douyin is not None and snapshot_path is not None:
+        def douyin_preview() -> None:
+            from urllib.parse import urlparse
+            parsed = urlparse(preview_douyin)
+            if not ((parsed.scheme == 'http' and parsed.hostname == '127.0.0.1')
+                    or (parsed.scheme == 'https' and parsed.hostname == 'www.douyin.com')):
+                print('Browser preview only supports official Douyin or the loopback test server', file=sys.stderr)
+                application.exit(2)
+                return
+            try:
+                from . import douyin_browser as browser_module
+            except ImportError:
+                import douyin_browser as browser_module
+            browser_module.DOUYIN_HOME = preview_douyin
+            mode = window.video_watcher
+            window.snapshot_saved = True
+            if not mode.enter() or not mode.show_douyin():
+                print('Embedded browser could not start', file=sys.stderr)
+                application.exit(2)
+                return
+            started = time.monotonic()
+            checking = False
+
+            def verified(value) -> None:
+                nonlocal checking
+                if not value:
+                    checking = False
+                    QTimer.singleShot(60, wait_browser)
+                    return
+                snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+                window.grab().save(str(snapshot_path))
+                browser_path = snapshot_path.with_name(snapshot_path.stem + '-douyin.png')
+                if not mode.dialog.grab().save(str(browser_path)):
+                    application.exit(2)
+                    return
+                emit_reply('browser_preview', success=True)
+
+            def wait_browser() -> None:
+                nonlocal checking
+                if time.monotonic() - started > 12:
+                    print('Embedded browser timed out', file=sys.stderr)
+                    application.exit(2)
+                    return
+                if mode.browser.ready and not checking:
+                    checking = True
+                    mode.browser.page.runJavaScript("!!document.body && document.body.innerText.length > 0", verified)
+                elif not checking:
+                    QTimer.singleShot(60, wait_browser)
+
+            QTimer.singleShot(200, wait_browser)
+
+        QTimer.singleShot(0, douyin_preview)
     emit_reply("ready")
     code = application.exec()
     recorder.close()
@@ -2708,11 +2885,20 @@ def main() -> int:
     parser.add_argument("--event-log", type=Path, help="append received protocol messages to a JSONL file")
     parser.add_argument("--snapshot", type=Path, help="save one diagnostic visual frame after the first message")
     parser.add_argument("--snapshot-voice-mode", choices=("dictation", "call"), help="show a voice pose in a diagnostic snapshot without starting the microphone")
+    parser.add_argument("--snapshot-chess", action="store_true", help="verify a chess round and save the pet and board snapshots")
+    parser.add_argument("--snapshot-video", type=Path, help="verify local video decoding and save the pet and player snapshots")
+    parser.add_argument("--snapshot-douyin", help="verify the native embedded browser using official Douyin or a loopback fixture URL")
     args = parser.parse_args()
     if args.snapshot_voice_mode and args.snapshot is None:
         parser.error("--snapshot-voice-mode requires --snapshot")
+    if args.snapshot_chess and (args.snapshot is None or args.snapshot_voice_mode or args.headless):
+        parser.error("--snapshot-chess requires --snapshot in visual mode without --snapshot-voice-mode")
+    if args.snapshot_video and (args.snapshot is None or args.headless or args.snapshot_chess or args.snapshot_voice_mode):
+        parser.error("--snapshot-video requires --snapshot in visual mode without other preview modes")
+    if args.snapshot_douyin and (args.snapshot is None or args.headless or args.snapshot_chess or args.snapshot_voice_mode or args.snapshot_video):
+        parser.error("--snapshot-douyin requires --snapshot in visual mode without other preview modes")
     recorder = EventRecorder(args.event_log)
-    return run_headless(recorder) if args.headless else run_visual(recorder, args.snapshot, args.snapshot_voice_mode)
+    return run_headless(recorder) if args.headless else run_visual(recorder, args.snapshot, args.snapshot_voice_mode, args.snapshot_chess, args.snapshot_video, args.snapshot_douyin)
 
 
 if __name__ == "__main__":

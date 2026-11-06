@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process'
 import { mkdir, mkdtemp, rm, stat } from 'node:fs/promises'
 import { rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, resolve } from 'node:path'
+import { dirname, parse, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url))
@@ -24,6 +24,18 @@ const snapshot = resolve(argument('--snapshot')
   ?? resolve(projectRoot, '.build/helper/packaged-visual-smoke.png'))
 const timeoutMs = Number(argument('--timeout-ms') ?? 15_000)
 const voiceMode = argument('--voice-mode')
+const chessMode = process.argv.includes('--chess')
+const videoFile = argument('--video')
+const douyinUrl = argument('--douyin')
+const chessSnapshot = resolve(dirname(snapshot), parse(snapshot).name + '-board.png')
+const videoSnapshot = resolve(dirname(snapshot), parse(snapshot).name + '-video.png')
+const douyinSnapshot = resolve(dirname(snapshot), parse(snapshot).name + '-douyin.png')
+if (chessMode) await rm(chessSnapshot, { force: true })
+if (videoFile) {
+  await stat(resolve(videoFile))
+  await rm(videoSnapshot, { force: true })
+}
+if (douyinUrl) await rm(douyinSnapshot, { force: true })
 if (voiceMode && !['dictation', 'call'].includes(voiceMode)) {
   throw new Error('--voice-mode must be dictation or call')
 }
@@ -44,11 +56,17 @@ await rm(snapshot, { force: true })
 // Always isolate it from the caller's real DSH profile and any layout override.
 const probeDirectory = await mkdtemp(resolve(tmpdir(), 'dsh-dafeiyu-packaged-smoke-'))
 const environment = { ...process.env, DSH_DAFEIYU_LAYOUT_PATH: resolve(probeDirectory, 'layout.json') }
-process.once('exit', () => rmSync(probeDirectory, { recursive: true, force: true }))
+process.once('exit', () => {
+  try { rmSync(probeDirectory, { recursive: true, force: true, maxRetries: 8, retryDelay: 250 }) }
+  catch { /* WebView2 may still be releasing its temporary test profile. */ }
+})
 
 const child = spawn(executable, [
   '--snapshot', snapshot,
   ...(voiceMode ? ['--snapshot-voice-mode', voiceMode] : []),
+  ...(chessMode ? ['--snapshot-chess'] : []),
+  ...(videoFile ? ['--snapshot-video', resolve(videoFile)] : []),
+  ...(douyinUrl ? ['--snapshot-douyin', douyinUrl] : []),
 ], {
   stdio: ['pipe', 'pipe', 'pipe'],
   windowsHide: true,
@@ -123,6 +141,25 @@ try {
       return false
     }
   }, 'visual snapshot')
+  if (chessMode) {
+    await waitUntil(async () => {
+      try { return (await stat(chessSnapshot)).size > 1024 } catch { return false }
+    }, 'chess board and local opponent round')
+    console.log(`Packaged chess round passed: ${chessSnapshot}`)
+  }
+  if (videoFile) {
+    await waitUntil(async () => {
+      try { return (await stat(videoSnapshot)).size > 1024 } catch { return false }
+    }, 'decoded local video frame')
+    console.log(`Packaged video playback passed: ${videoSnapshot}`)
+  }
+  if (douyinUrl) {
+    await waitUntil(async () => {
+      try { return hasReply(standardOutput, 'browser_preview') && (await stat(douyinSnapshot)).size > 1024 }
+      catch { return false }
+    }, 'native embedded Douyin browser')
+    console.log(`Packaged embedded browser passed: ${douyinSnapshot}`)
+  }
   child.stdin.end(`${JSON.stringify({
     protocolVersion: 1,
     kind: 'shutdown',

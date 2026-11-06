@@ -30,6 +30,8 @@ class NovelReader:
     def active(self) -> bool:
         return bool(
             self.state.get("enabled") and self.state.get("hasBook")
+            and not getattr(self.owner, "chess_mode", False)
+            and not getattr(self.owner, "watching_video", False)
             and self.owner.model.base_state == "IDLE"
             and self.owner.model.pulse_state is None
             and self.owner.model.overlay_clip_name is None
@@ -171,6 +173,10 @@ class NovelReader:
         from PySide6.QtGui import QFont
         from PySide6.QtWidgets import QCheckBox, QDialog, QHBoxLayout, QLabel, QPushButton, QTextEdit, QVBoxLayout, QWidget
 
+        if getattr(self.owner, "chess_mode", False):
+            self.owner.xiangqi_mode.leave()
+        if getattr(self.owner, "watching_video", False):
+            self.owner.video_watcher.leave()
         if self.dialog is None:
             self.dialog = QDialog(self.owner, Qt.WindowType.Window | Qt.WindowType.WindowStaysOnTopHint)
             self.dialog.setWindowTitle("小肥蠊 · 摸鱼阅读")
