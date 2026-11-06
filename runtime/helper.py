@@ -1680,6 +1680,42 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None,
 
         SOUND_FILES = {"SUCCESS": "success.wav", "ERROR": "error.wav", "APPROVAL": "approval.wav"}
 
+        def _play_chess_sound(self, sound: str) -> None:
+            if not self.sound_enabled or sound not in {"move", "capture", "check", "win", "loss"}:
+                return
+            sound_path = bundle_root() / "assets" / "sounds" / "xiangqi" / f"{sound}.wav"
+            if not sound_path.is_file():
+                return
+            played = False
+            if sys.platform == "win32":
+                try:
+                    import winsound
+
+                    winsound.PlaySound(
+                        str(sound_path),
+                        winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_NODEFAULT,
+                    )
+                    played = True
+                except (ImportError, OSError, RuntimeError):
+                    pass
+            elif QSoundEffect is not None:
+                try:
+                    effect = self.sound_effects.get(sound_path)
+                    if effect is None:
+                        effect = QSoundEffect(self)
+                        effect.setSource(QUrl.fromLocalFile(str(sound_path)))
+                        effect.setVolume(0.75)
+                        self.sound_effects[sound_path] = effect
+                    effect.play()
+                    played = True
+                except (OSError, RuntimeError):
+                    pass
+            if not played:
+                try:
+                    QApplication.beep()
+                except Exception:
+                    pass
+
         def _notify_alert(self, state: str) -> None:
             if self.sound_enabled and state in self.sound_states:
                 sound_name = self.SOUND_FILES.get(state, "error.wav")

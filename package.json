@@ -36,6 +36,7 @@
     "scripts/build-helper.mjs",
     "scripts/run-python.mjs",
     "scripts/generate_notification_sounds.py",
+    "scripts/generate_xiangqi_sounds.py",
     "scripts/test-packaged-helper.mjs",
     "assets/pet/custom/",
     "assets/dsh-pet-LICENSE.txt",

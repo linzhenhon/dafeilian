@@ -112,7 +112,9 @@ class XiangqiMode:
         if self.game.board[square] > 0:
             self.selected = None if self.selected == square else square
         elif self.selected is not None:
-            if self.game.play(Move(self.selected, square)):
+            move = Move(self.selected, square)
+            if self.game.play(move):
+                self._play_move_sound(move)
                 self.selected = None
                 self.refresh()
                 self.start_opponent()
@@ -140,11 +142,27 @@ class XiangqiMode:
         try:
             move = future.result()
             if move is not None:
-                self.game.play(move)
+                if self.game.play(move):
+                    self._play_move_sound(move)
             self.refresh()
         except Exception:
             self.status.setText("小肥蠊这步没想好，可以悔棋或重新开局。")
         self.owner.update()
+
+    def _play_move_sound(self, move: Move) -> None:
+        """Play a distinct, short board sound after a legal move."""
+        if not getattr(self.owner, "sound_enabled", True):
+            return
+        captured = bool(self.game.history[-1][0][move.target]) if self.game.history else False
+        if self.game.winner == RED:
+            sound = "win"
+        elif self.game.winner == BLACK:
+            sound = "loss"
+        elif in_check(self.game.board, self.game.turn):
+            sound = "check"
+        else:
+            sound = "capture" if captured else "move"
+        self.owner._play_chess_sound(sound)
 
     def refresh(self) -> None:
         if self.dialog is None:
