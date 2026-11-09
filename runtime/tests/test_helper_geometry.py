@@ -15,7 +15,7 @@ try:
 except ImportError:
     QApplication = None
 
-from runtime.helper import EventRecorder, run_visual
+from runtime.helper import DSH_GO_DOWNLOAD_URL, EventRecorder, run_visual
 
 
 @unittest.skipUnless(QApplication is not None, 'Qt integration runs with the Helper build dependencies')
@@ -115,6 +115,10 @@ class HelperGeometryTests(unittest.TestCase):
                     with patch.object(QDesktopServices, 'openUrl', return_value=False), patch('sys.stderr'):
                         window._open_client()
                     self.assertEqual(window.overlay_message, '无法打开 DSH')
+                    with patch.object(QDesktopServices, 'openUrl', return_value=True) as open_url:
+                        window._open_dsh_go_download()
+                    open_url.assert_called_once()
+                    self.assertEqual(open_url.call_args.args[0].toString(), DSH_GO_DOWNLOAD_URL)
                     window._move_to_pet(500, 500)
                     message('config', bubbleMode='always')
                     message('pulse', state='SUCCESS', ttlMs=2200, resumeState='IDLE')

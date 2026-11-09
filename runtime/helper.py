@@ -44,6 +44,7 @@ except ImportError:
 
 
 PROTOCOL_VERSION = 1
+DSH_GO_DOWNLOAD_URL = "https://go.dshtui.com/download"
 STATES = {"IDLE", "THINKING", "WORKING", "WAITING", "SUCCESS", "ERROR", "DISCONNECTED"}
 # A decoded 412x344 ARGB32 frame costs ~0.55 MB, so keeping every frame of a
 # 24 fps set resident would need well over a gigabyte. Frames are read from disk
@@ -2098,6 +2099,8 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None,
                 market_interval_actions[action] = interval
             open_webui_action = menu.addAction(self.open_label)
             menu.addSeparator()
+            dsh_go_download_action = menu.addAction("获取 Android 版 DSH Go…")
+            menu.addSeparator()
             hide_action = menu.addAction("本次隐藏")
             exit_action = menu.addAction("本次关闭")
             selected = menu.exec(event.globalPos())
@@ -2145,6 +2148,8 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None,
                 self.update()
             elif selected == open_webui_action:
                 self._open_client()
+            elif selected == dsh_go_download_action:
+                self._open_dsh_go_download()
             elif selected == hide_action:
                 self.hide()
             elif selected == exit_action:
@@ -2775,6 +2780,13 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None,
             if not QDesktopServices.openUrl(QUrl(self.webui_url)):
                 print("Unable to open the configured DSH client", file=sys.stderr)
                 self._show_overlay("无法打开 DSH", "请确认 DSH 已安装、打开地址设置正确", "ERROR", 4000)
+                self._sync_bubble_size()
+                self.update()
+
+        def _open_dsh_go_download(self) -> None:
+            if not QDesktopServices.openUrl(QUrl(DSH_GO_DOWNLOAD_URL)):
+                print("Unable to open the DSH Go download page", file=sys.stderr)
+                self._show_overlay("无法打开下载页", "请手动访问 go.dshtui.com/download", "ERROR", 4000)
                 self._sync_bubble_size()
                 self.update()
 

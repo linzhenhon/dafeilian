@@ -33,8 +33,8 @@ PyObjC 在 macOS 26 上崩溃 → EPIPE 未捕获 → 整个 dsh 服务器退出
 - 动画内核：与 `runtime/animation_model.py` 共用上游帧清单及播放规则，
   包括任务状态、完整完成提示、待机动作和动作间淡化；不叠加程序化摇摆或窗口抖动。
 - 交互：左键拖拽（悬空段循环、松手后完整落地并持久化位置）、单击摸头/戳/尾巴、
-  双击、右键菜单（大小/气泡大小/减少动态/打开 WebUI/辅助功能权限/
-  本次隐藏/本次关闭）
+  双击、右键菜单（大小/气泡大小/减少动态/打开 WebUI/获取 Android 版 DSH Go/
+  辅助功能权限/本次隐藏/本次关闭）
 - 全屏置顶：`NSWindow.CollectionBehavior` 的 `canJoinAllSpaces` +
   `fullScreenAuxiliary` + `stationary`，`NSWindow.Level.floating`，每 2 秒
   重新断言层级并 `orderFrontRegardless()`，全屏 App 下依然在前端

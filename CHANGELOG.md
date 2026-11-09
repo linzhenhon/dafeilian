@@ -2,6 +2,12 @@
 
 > This is release history. For installation, use the [latest stable release](https://github.com/linzhenhon/dafeilian/releases/latest), not commands from older entries.
 
+## Unreleased
+
+### Added
+
+- Add a desktop context-menu link to the official DSH Go Android download page. The APK remains hosted upstream and is not bundled in this project.
+
 ## 0.0.1 · 2026-11-04
 
 ### Changed

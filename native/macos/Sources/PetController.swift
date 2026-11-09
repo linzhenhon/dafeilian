@@ -621,6 +621,10 @@ final class PetController: NSObject {
         openWeb.target = self
         menu.addItem(openWeb)
 
+        let dshGoDownload = NSMenuItem(title: "获取 Android 版 DSH Go…", action: #selector(openDshGoDownload(_:)), keyEquivalent: "")
+        dshGoDownload.target = self
+        menu.addItem(dshGoDownload)
+
         let accessibility = NSMenuItem(title: "辅助功能权限…", action: #selector(accessibilityPermission(_:)), keyEquivalent: "")
         accessibility.target = self
         menu.addItem(accessibility)
@@ -682,6 +686,14 @@ final class PetController: NSObject {
         }
         FileHandle.standardError.write(Data("Unable to open the configured DSH client\n".utf8))
         showOverlay("无法打开 DSH", "请确认 DSH 已安装、打开地址设置正确", "ERROR", 4000)
+        contentView?.needsDisplay = true
+    }
+
+    @objc private func openDshGoDownload(_ sender: Any?) {
+        guard let url = URL(string: "https://go.dshtui.com/download") else { return }
+        if NSWorkspace.shared.open(url) { return }
+        FileHandle.standardError.write(Data("Unable to open the DSH Go download page\n".utf8))
+        showOverlay("无法打开下载页", "请手动访问 go.dshtui.com/download", "ERROR", 4000)
         contentView?.needsDisplay = true
     }
 

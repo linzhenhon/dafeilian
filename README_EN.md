@@ -24,6 +24,7 @@ BigFish starts and stops with its DSH Host. A transparent, frameless native wind
 - Project and step information, multiple tasks, and progress supplied by DSH.
 - DeepSeek balances in the native status card and settings page, with separate API-key and signed-in account sources.
 - The shared Web client supports browser WebUI and official Desktop, each with its own plugin profile.
+- Open the [official DSH Go Android download page](https://go.dshtui.com/download) from the pet's context menu. The upstream hosts the APK; this project does not bundle it.
 - Dragging, head pats, body pokes, tail interaction, size controls, sounds, and reduced motion.
 - An optional lightweight companion inside the DSH page, disabled by default.
 
@@ -39,6 +40,8 @@ BigFish observes DSH session events. It does not read your screen. Reasoning eff
 Installing into `web` does not install into `desktop`. Running both Hosts with BigFish enabled starts two native companions; disable it in one profile if needed. Community desktop wrappers may still use the `web` profile.
 
 The package's `platform: web` client declaration also applies to official Desktop, which embeds the same Web client. Each Host owns its native companion.
+
+Select **Get DSH Go for Android…** from the pet's context menu to open its download page. DSH Go is a community Android client, not an official DeepSeek app; its APK remains hosted upstream and is not copied into this project.
 
 ## Install
 
