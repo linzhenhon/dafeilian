@@ -25,6 +25,7 @@ BigFish starts and stops with its DSH Host. A transparent, frameless native wind
 - DeepSeek balances in the native status card and settings page, with separate API-key and signed-in account sources.
 - The shared Web client supports browser WebUI and official Desktop, each with its own plugin profile.
 - Open the [official DSH Go Android download page](https://go.dshtui.com/download) from the pet's context menu. The upstream hosts the APK; this project does not bundle it.
+- The context menu links to the [SurfCore plugin project](https://github.com/Mieksido/surfcore), where users can review its QQ, Bilibili, and pet-related features and setup instructions.
 - Dragging, head pats, body pokes, tail interaction, size controls, sounds, and reduced motion.
 - An optional lightweight companion inside the DSH page, disabled by default.
 
@@ -42,6 +43,8 @@ Installing into `web` does not install into `desktop`. Running both Hosts with B
 The package's `platform: web` client declaration also applies to official Desktop, which embeds the same Web client. Each Host owns its native companion.
 
 Select **Get DSH Go for Android…** from the pet's context menu to open its download page. DSH Go is a community Android client, not an official DeepSeek app; its APK remains hosted upstream and is not copied into this project.
+
+Select **Learn about SurfCore…** to open the [SurfCore upstream repository](https://github.com/Mieksido/surfcore). SurfCore is a separate Windows DSH plugin targeting DSH 0.2.1-rc.2 or newer. Its QQ features also require a separately installed and configured SnowLuma runtime. Follow the upstream README for current setup steps and requirements.
 
 ## Install
 

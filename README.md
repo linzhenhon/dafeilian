@@ -28,6 +28,7 @@
 - 在状态气泡和设置页显示 DeepSeek 余额，区分 API Key 与已登录账户。
 - 可选开启币种盯盘：最多订阅五个币安 USDT 现货交易对，桌宠卡片展示所选币种在 1 分钟、15 分钟、1 小时或 4 小时 K 线内的实时涨跌，无需登录。
 - 右键桌宠可打开 [DSH Go Android 客户端官方下载页](https://go.dshtui.com/download)；APK 由上游托管，不随本项目打包。
+- 右键菜单提供 [SurfCore 插件项目入口](https://github.com/Mieksido/surfcore)，可查看其 QQ、B 站及桌宠相关功能和安装说明。
 - 兼容 WebUI 与官方桌面端的共享客户端；两个客户端使用各自的插件配置。
 - 支持拖动、摸头、戳身体、碰尾巴，以及大小、气泡、声音和减少动态设置。
 - 气泡支持键盘输入、点按录音填字和持续语音通话；通话会在停顿后逐句发送到当前 DSH 对话并朗读回复。语音识别在本机运行，详见 [语音输入设置](docs/voice-input.md)。
@@ -47,6 +48,8 @@
 客户端包中的 `platform: web` 也适用于官方桌面端：官方 Electron 应用使用同一套 Web 客户端。原生角色由对应 Host 启动。
 
 桌宠右键菜单中的「获取 Android 版 DSH Go…」会打开下载页。DSH Go 是社区开发的独立 Android 客户端，并非 DeepSeek 官方应用；APK 由其上游托管，本项目不复制或分发该安装包。
+
+桌宠右键菜单中的「了解 SurfCore 插件…」会打开 [SurfCore 上游仓库](https://github.com/Mieksido/surfcore)。SurfCore 是独立的 Windows DSH 插件，目标版本为 DSH 0.2.1-rc.2 或更新；QQ 功能还需要单独安装并配置 SnowLuma。具体安装步骤和组件要求以上游 README 为准。
 
 ## 安装
 

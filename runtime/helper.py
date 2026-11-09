@@ -45,6 +45,7 @@ except ImportError:
 
 PROTOCOL_VERSION = 1
 DSH_GO_DOWNLOAD_URL = "https://go.dshtui.com/download"
+SURFCORE_REPOSITORY_URL = "https://github.com/Mieksido/surfcore"
 STATES = {"IDLE", "THINKING", "WORKING", "WAITING", "SUCCESS", "ERROR", "DISCONNECTED"}
 # A decoded 412x344 ARGB32 frame costs ~0.55 MB, so keeping every frame of a
 # 24 fps set resident would need well over a gigabyte. Frames are read from disk
@@ -2100,6 +2101,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None,
             open_webui_action = menu.addAction(self.open_label)
             menu.addSeparator()
             dsh_go_download_action = menu.addAction("获取 Android 版 DSH Go…")
+            surfcore_project_action = menu.addAction("了解 SurfCore 插件…")
             menu.addSeparator()
             hide_action = menu.addAction("本次隐藏")
             exit_action = menu.addAction("本次关闭")
@@ -2150,6 +2152,8 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None,
                 self._open_client()
             elif selected == dsh_go_download_action:
                 self._open_dsh_go_download()
+            elif selected == surfcore_project_action:
+                self._open_surfcore_project()
             elif selected == hide_action:
                 self.hide()
             elif selected == exit_action:
@@ -2787,6 +2791,13 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None,
             if not QDesktopServices.openUrl(QUrl(DSH_GO_DOWNLOAD_URL)):
                 print("Unable to open the DSH Go download page", file=sys.stderr)
                 self._show_overlay("无法打开下载页", "请手动访问 go.dshtui.com/download", "ERROR", 4000)
+                self._sync_bubble_size()
+                self.update()
+
+        def _open_surfcore_project(self) -> None:
+            if not QDesktopServices.openUrl(QUrl(SURFCORE_REPOSITORY_URL)):
+                print("Unable to open the SurfCore project page", file=sys.stderr)
+                self._show_overlay("无法打开 SurfCore 项目页", "请手动访问 github.com/Mieksido/surfcore", "ERROR", 4000)
                 self._sync_bubble_size()
                 self.update()
 

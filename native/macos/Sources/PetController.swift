@@ -625,6 +625,10 @@ final class PetController: NSObject {
         dshGoDownload.target = self
         menu.addItem(dshGoDownload)
 
+        let surfCoreProject = NSMenuItem(title: "了解 SurfCore 插件…", action: #selector(openSurfCoreProject(_:)), keyEquivalent: "")
+        surfCoreProject.target = self
+        menu.addItem(surfCoreProject)
+
         let accessibility = NSMenuItem(title: "辅助功能权限…", action: #selector(accessibilityPermission(_:)), keyEquivalent: "")
         accessibility.target = self
         menu.addItem(accessibility)
@@ -694,6 +698,14 @@ final class PetController: NSObject {
         if NSWorkspace.shared.open(url) { return }
         FileHandle.standardError.write(Data("Unable to open the DSH Go download page\n".utf8))
         showOverlay("无法打开下载页", "请手动访问 go.dshtui.com/download", "ERROR", 4000)
+        contentView?.needsDisplay = true
+    }
+
+    @objc private func openSurfCoreProject(_ sender: Any?) {
+        guard let url = URL(string: "https://github.com/Mieksido/surfcore") else { return }
+        if NSWorkspace.shared.open(url) { return }
+        FileHandle.standardError.write(Data("Unable to open the SurfCore project page\n".utf8))
+        showOverlay("无法打开 SurfCore 项目页", "请手动访问 github.com/Mieksido/surfcore", "ERROR", 4000)
         contentView?.needsDisplay = true
     }
 

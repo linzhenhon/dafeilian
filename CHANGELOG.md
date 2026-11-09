@@ -7,6 +7,7 @@
 ### Added
 
 - Add a desktop context-menu link to the official DSH Go Android download page. The APK remains hosted upstream and is not bundled in this project.
+- Add a desktop context-menu link to the independent SurfCore DSH plugin repository.
 
 ## 0.0.1 · 2026-11-04
 
